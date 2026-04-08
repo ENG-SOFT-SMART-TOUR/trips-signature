@@ -51,15 +51,37 @@ trips-signature/
 ```mermaid
 flowchart TB
     subgraph Frontend["Frontend (React)"]
-        Login --> Quiz --> Destinos
-        AuthContext("AuthContext\nlocalStorage") <--> api("api.ts\nAxios")
+        Pages["Pages\nLogin | Quiz | Destinos"] --> Store["Store\nZustand"]
+        Pages <--> api["services/api.ts\nAxios"]
     end
 
     subgraph Backend["Backend (Spring Boot)"]
-        Controller --> Service --> Repository --> DB[(PostgreSQL)]
+        subgraph Config["config/"]
+            CorsConfig
+        end
+        subgraph Controllers["controller/"]
+            AuthCtrl["AuthController"]
+            QuizCtrl["QuizController"]
+        end
+        subgraph Services["service/"]
+            AuthSvc["AuthService"]
+            QuizSvc["QuizService"]
+        end
+        subgraph Domain["domain/"]
+            Entities["entity/\nUsuario | Destino"]
+            Repos["repository/\nUsuarioRepository | DestinoRepository"]
+        end
+        subgraph DTOs["dto/"]
+            Records["Records\nRequests | Responses"]
+        end
     end
 
-    api -- "HTTP/JSON :8080" --> Controller
+    api -- "HTTP/JSON :8080" --> Controllers
+    Controllers --> DTOs
+    Controllers --> Services
+    Services --> Repos
+    Repos --> Entities
+    Entities --> DB[(PostgreSQL)]
 ```
 
 ---
@@ -115,87 +137,99 @@ erDiagram
 
 ```mermaid
 classDiagram
-    class CorsConfig {
-        +addCorsMappings(CorsRegistry) void
+    namespace config {
+        class CorsConfig {
+            +addCorsMappings(CorsRegistry) void
+        }
     }
 
-    class AuthController {
-        +cadastro(CadastroRequest) LoginResponse
-        +login(LoginRequest) LoginResponse
-    }
-    class QuizController {
-        +getPerguntas() List~PerguntaDto~
-        +responder(QuizRequest) void
-    }
-
-    class AuthService {
-        +cadastrar(CadastroRequest) LoginResponse
-        +login(LoginRequest) LoginResponse
-        -encoder BCryptPasswordEncoder
-    }
-    class QuizService {
-        +getPerguntas() List~PerguntaDto~
-        +salvarPerfil(QuizRequest) void
-        -PERGUNTAS List~PerguntaDto~
+    namespace controller {
+        class AuthController {
+            +cadastro(CadastroRequest) LoginResponse
+            +login(LoginRequest) LoginResponse
+        }
+        class QuizController {
+            +getPerguntas() List~PerguntaDto~
+            +responder(QuizRequest) void
+        }
     }
 
-    class UsuarioRepository {
-        +findByEmail(email) Optional~Usuario~
-        +existsByEmail(email) boolean
-    }
-    class DestinoRepository
-
-    class Usuario {
-        +Long id
-        +String nome
-        +String email
-        +String senha
-        +Set~String~ tags
-        +boolean quizCompleto
-    }
-    class Destino {
-        +Long id
-        +String nome
-        +String descricao
-        +String foto
-        +String pais
-        +String categoria
-        +Set~String~ tags
+    namespace service {
+        class AuthService {
+            +cadastrar(CadastroRequest) LoginResponse
+            +login(LoginRequest) LoginResponse
+            -encoder BCryptPasswordEncoder
+        }
+        class QuizService {
+            +getPerguntas() List~PerguntaDto~
+            +salvarPerfil(QuizRequest) void
+            -PERGUNTAS List~PerguntaDto~
+        }
     }
 
-    class CadastroRequest {
-        <<record>>
-        +String nome
-        +String email
-        +String senha
+    namespace domain_entity {
+        class Usuario {
+            +Long id
+            +String nome
+            +String email
+            +String senha
+            +Set~String~ tags
+            +boolean quizCompleto
+        }
+        class Destino {
+            +Long id
+            +String nome
+            +String descricao
+            +String foto
+            +String pais
+            +String categoria
+            +Set~String~ tags
+        }
     }
-    class LoginRequest {
-        <<record>>
-        +String email
-        +String senha
+
+    namespace domain_repository {
+        class UsuarioRepository {
+            +findByEmail(email) Optional~Usuario~
+            +existsByEmail(email) boolean
+        }
+        class DestinoRepository
     }
-    class LoginResponse {
-        <<record>>
-        +Long id
-        +String nome
-        +String email
-        +boolean quizCompleto
-    }
-    class PerguntaDto {
-        <<record>>
-        +int id
-        +String texto
-        +List~OpcaoDto~ opcoes
-    }
-    class OpcaoDto {
-        <<record>>
-        +String label
-        +String tag
-    }
-    class QuizRequest {
-        <<record>>
-        +Long usuarioId
-        +List~String~ tags
+
+    namespace dto {
+        class CadastroRequest {
+            <<record>>
+            +String nome
+            +String email
+            +String senha
+        }
+        class LoginRequest {
+            <<record>>
+            +String email
+            +String senha
+        }
+        class LoginResponse {
+            <<record>>
+            +Long id
+            +String nome
+            +String email
+            +boolean quizCompleto
+        }
+        class PerguntaDto {
+            <<record>>
+            +int id
+            +String texto
+            +List~OpcaoDto~ opcoes
+        }
+        class OpcaoDto {
+            <<record>>
+            +String label
+            +String tag
+        }
+        class QuizRequest {
+            <<record>>
+            +Long usuarioId
+            +List~String~ tags
+        }
     }
 
     AuthController --> AuthService
