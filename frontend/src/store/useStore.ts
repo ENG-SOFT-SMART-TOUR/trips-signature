@@ -44,8 +44,10 @@ export interface Itinerary {
 }
 
 export interface UserProfile {
+  id: number;
   name: string;
   email: string;
+  quizCompleto: boolean;
   quizAnswers: QuizAnswers;
   tags: string[];
 }
@@ -56,8 +58,8 @@ interface AppState {
   savedDestinations: string[];
   itineraries: Itinerary[];
   diaries: Diary[];
-  
-  login: (email: string, name: string) => void;
+
+  login: (email: string, name: string, id: number, quizCompleto: boolean) => void;
   logout: () => void;
   register: (name: string, email: string) => void;
   setQuizAnswers: (answers: QuizAnswers) => void;
@@ -73,36 +75,44 @@ interface AppState {
   updateProfile: (name: string, email: string) => void;
 }
 
+const savedUser = localStorage.getItem('user');
+const initialUser: UserProfile | null = savedUser ? JSON.parse(savedUser) : null;
+
 export const useStore = create<AppState>((set) => ({
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: !!initialUser,
+  user: initialUser,
   savedDestinations: [],
   itineraries: [],
   diaries: [],
 
-  login: (email, name) => set({
-    isAuthenticated: true,
-    user: { name, email, quizAnswers: {}, tags: [] },
-  }),
+  login: (email, name, id, quizCompleto) => {
+    const user: UserProfile = { id, name, email, quizCompleto, quizAnswers: {}, tags: [] };
+    localStorage.setItem('user', JSON.stringify(user));
+    set({ isAuthenticated: true, user });
+  },
 
-  logout: () => set({
-    isAuthenticated: false,
-    user: null,
-    savedDestinations: [],
-    itineraries: [],
-    diaries: [],
-  }),
+  logout: () => {
+    localStorage.removeItem('user');
+    set({
+      isAuthenticated: false,
+      user: null,
+      savedDestinations: [],
+      itineraries: [],
+      diaries: [],
+    });
+  },
 
-  register: (name, email) => set({
-    isAuthenticated: true,
-    user: { name, email, quizAnswers: {}, tags: [] },
-  }),
+  register: (name, email) => {
+    const user: UserProfile = { id: 0, name, email, quizCompleto: false, quizAnswers: {}, tags: [] };
+    localStorage.setItem('user', JSON.stringify(user));
+    set({ isAuthenticated: true, user });
+  },
 
   setQuizAnswers: (answers) => set((state) => {
     const tags = Object.values(answers).filter(Boolean).map(v => v!.toLowerCase());
-    return {
-      user: state.user ? { ...state.user, quizAnswers: answers, tags } : null,
-    };
+    const user = state.user ? { ...state.user, quizAnswers: answers, tags, quizCompleto: true } : null;
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    return { user };
   }),
 
   toggleSaveDestination: (id) => set((state) => ({
@@ -151,7 +161,9 @@ export const useStore = create<AppState>((set) => ({
     diaries: state.diaries.filter(d => d.id !== id),
   })),
 
-  updateProfile: (name, email) => set((state) => ({
-    user: state.user ? { ...state.user, name, email } : null,
-  })),
+  updateProfile: (name, email) => set((state) => {
+    const user = state.user ? { ...state.user, name, email } : null;
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    return { user };
+  }),
 }));
