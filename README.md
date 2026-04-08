@@ -333,3 +333,25 @@ flowchart LR
     C --> D([Destinos\nordenados por % match])
     D --> E([Salvar\nfavoritos])
 ```
+
+---
+
+## Protótipo Interativo
+
+O protótipo funcional do SignatureTrips foi desenvolvido com Lovable e está disponível no repositório [signature-trips](https://github.com/ENG-SOFT-SMART-TOUR/signature-trips) da organização.
+
+**Stack do protótipo:** React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui + Zustand + Framer Motion
+
+### Telas do Protótipo
+
+| Tela | Rota | Descrição |
+|------|------|-----------|
+| Landing Page | `/` | Página inicial com hero, stats e showcase |
+| Cadastro | `/register` | Formulário com nome, e-mail, senha e confirmação |
+| Login | `/login` | Formulário com e-mail e senha |
+| Quiz | `/quiz` | 5 perguntas de múltipla escolha com animações |
+| Matches | `/matches` | Destinos ordenados por % de compatibilidade |
+| Dashboard | `/dashboard` | Estatísticas e destinos salvos |
+| Settings | `/settings` | Perfil, travel profile e botão "Retake Quiz" |
+| Itinerários | `/itinerary/*` | Criação e edição de roteiros (Sprint 2+) |
+| Diário | `/diary/*` | Registro de viagem com fotos (Sprint 2+) |
