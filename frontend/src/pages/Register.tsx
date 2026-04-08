@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
+import { authApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,9 +11,10 @@ import PageTransition from '@/components/PageTransition';
 
 export default function Register() {
   const navigate = useNavigate();
-  const register = useStore(s => s.register);
+  const login = useStore(s => s.login);
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -24,12 +26,28 @@ export default function Register() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    register(form.name, form.email);
-    toast.success('Welcome aboard! Let\'s discover your travel style.');
-    navigate('/quiz');
+
+    setLoading(true);
+    try {
+      const { data } = await authApi.cadastrar({
+        nome: form.name,
+        email: form.email,
+        senha: form.password,
+      });
+      login(data.email, data.nome, data.id, data.quizCompleto);
+      toast.success('Welcome aboard! Let\'s discover your travel style.');
+      navigate('/quiz');
+    } catch (err: any) {
+      const msg = err.response?.status === 409
+        ? 'This email is already registered'
+        : 'Registration failed. Please try again.';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,8 +84,12 @@ export default function Register() {
                 )}
               </div>
             ))}
-            <Button type="submit" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4">
-              Create Account
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
+            >
+              {loading ? 'Creating...' : 'Create Account'}
             </Button>
           </form>
 
