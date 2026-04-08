@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: signaturetrips-db
+    environment:
+      POSTGRES_DB: signaturetrips
+      POSTGRES_USER: signaturetrips
+      POSTGRES_PASSWORD: signaturetrips
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

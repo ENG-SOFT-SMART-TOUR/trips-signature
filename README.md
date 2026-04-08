@@ -1,6 +1,6 @@
-# SmartTour
+# SignatureTrips
 
-Plataforma de tours virtuais com realidade aumentada. O usuário se cadastra, responde um quiz de preferências de viagem, e recebe destinos recomendados com percentual de compatibilidade baseado no seu perfil.
+Aplicativo de recomendação de viagens personalizado. O usuário se cadastra, responde um quiz de preferências de viagem, e recebe destinos recomendados com percentual de compatibilidade baseado no seu perfil.
 
 ---
 
@@ -8,25 +8,40 @@ Plataforma de tours virtuais com realidade aumentada. O usuário se cadastra, re
 
 | Camada         | Tecnologia                      |
 | -------------- | ------------------------------- |
-| Frontend       | React 19 + TypeScript + Vite 8  |
-| Backend        | Spring Boot 4.0.5 + Java 21     |
-| ORM            | Hibernate 7 / Spring Data JPA   |
-| Banco de Dados | PostgreSQL 16 (Docker)          |
-| Segurança      | BCrypt (spring-security-crypto) |
-| HTTP Client    | Axios                           |
-| Roteamento     | React Router DOM 7              |
+| Frontend       | React 19.2 + TypeScript 6.0 + Vite 8.0 |
+| Backend        | Spring Boot 4.0.5 + Java 21             |
+| ORM            | Hibernate / Spring Data JPA             |
+| Banco de Dados | PostgreSQL 16 (Docker)                  |
+| Segurança      | BCrypt (spring-security-crypto)         |
+| HTTP Client    | Axios                                   |
+| Roteamento     | React Router DOM 7                      |
 
 ---
 
 ## Estrutura do Projeto
 
 ```
-tour_smart/
-├── frontend/          # React + TypeScript (Vite)
-├── backend/           # Spring Boot (Java 21, Maven)
-├── docker-compose.yml # PostgreSQL 16
-├── README.md
-└── REQUIREMENTS.md    # User stories e requisitos do projeto
+trips-signature/
+├── backend/              # Spring Boot (Java 21, Maven)
+│   ├── pom.xml
+│   └── src/main/java/com/signaturetrips/api/
+│       ├── config/       # CorsConfig
+│       ├── controller/   # REST Controllers
+│       ├── domain/
+│       │   ├── entity/   # JPA Entities
+│       │   └── repository/ # Spring Data Repositories
+│       ├── dto/          # Records (Request/Response)
+│       └── service/      # Business Logic
+├── frontend/             # React 19 + TypeScript (Vite 8)
+│   ├── package.json
+│   └── src/
+│       ├── pages/        # Route Components
+│       ├── components/   # UI Components
+│       ├── services/     # API Client
+│       ├── store/        # State Management
+│       └── types/        # TypeScript Interfaces
+├── docker-compose.yml    # PostgreSQL 16
+└── README.md
 ```
 
 ---
@@ -66,6 +81,7 @@ erDiagram
         varchar nome
         text descricao
         varchar foto
+        varchar pais
         varchar categoria
     }
 
@@ -99,54 +115,42 @@ erDiagram
 
 ```mermaid
 classDiagram
+    class CorsConfig {
+        +addCorsMappings(CorsRegistry) void
+    }
+
     class AuthController {
         +cadastro(CadastroRequest) LoginResponse
         +login(LoginRequest) LoginResponse
     }
     class QuizController {
-        +getPerguntas() List~QuizPergunta~
+        +getPerguntas() List~PerguntaDto~
         +responder(QuizRequest) void
-    }
-    class DestinoController {
-        +listar(usuarioId) List~DestinoResponse~
-        +salvar(usuarioId, destinoId) void
-        +remover(usuarioId, destinoId) void
     }
 
     class AuthService {
         +cadastrar(CadastroRequest) LoginResponse
         +login(LoginRequest) LoginResponse
-        -passwordEncoder BCryptPasswordEncoder
+        -encoder BCryptPasswordEncoder
     }
     class QuizService {
-        +getPerguntas() List~QuizPergunta~
-        +processarQuiz(QuizRequest) void
-        -PERGUNTAS List~QuizPergunta~
-    }
-    class DestinoService {
-        +listarComMatch(usuarioId) List~DestinoResponse~
-        +salvarDestino(usuarioId, destinoId) void
-        +removerDestino(usuarioId, destinoId) void
-        -calcularMatch(userTags, destinoTags) int
-        +popularDestinos() void
+        +getPerguntas() List~PerguntaDto~
+        +salvarPerfil(QuizRequest) void
+        -PERGUNTAS List~PerguntaDto~
     }
 
     class UsuarioRepository {
         +findByEmail(email) Optional~Usuario~
+        +existsByEmail(email) boolean
     }
     class DestinoRepository
-    class DestinoSalvoRepository {
-        +findByUsuario(usuario) List~DestinoSalvo~
-        +existsByUsuarioAndDestino(u, d) boolean
-        +findByUsuarioAndDestino(u, d) Optional~DestinoSalvo~
-    }
 
     class Usuario {
         +Long id
         +String nome
         +String email
         +String senha
-        +List~String~ tags
+        +Set~String~ tags
         +boolean quizCompleto
     }
     class Destino {
@@ -154,31 +158,60 @@ classDiagram
         +String nome
         +String descricao
         +String foto
+        +String pais
         +String categoria
-        +List~String~ tags
+        +Set~String~ tags
     }
-    class DestinoSalvo {
+
+    class CadastroRequest {
+        <<record>>
+        +String nome
+        +String email
+        +String senha
+    }
+    class LoginRequest {
+        <<record>>
+        +String email
+        +String senha
+    }
+    class LoginResponse {
+        <<record>>
         +Long id
-        +Usuario usuario
-        +Destino destino
+        +String nome
+        +String email
+        +boolean quizCompleto
+    }
+    class PerguntaDto {
+        <<record>>
+        +int id
+        +String texto
+        +List~OpcaoDto~ opcoes
+    }
+    class OpcaoDto {
+        <<record>>
+        +String label
+        +String tag
+    }
+    class QuizRequest {
+        <<record>>
+        +Long usuarioId
+        +List~String~ tags
     }
 
     AuthController --> AuthService
     QuizController --> QuizService
-    DestinoController --> DestinoService
 
     AuthService --> UsuarioRepository
     QuizService --> UsuarioRepository
-    DestinoService --> UsuarioRepository
-    DestinoService --> DestinoRepository
-    DestinoService --> DestinoSalvoRepository
 
     UsuarioRepository --> Usuario
     DestinoRepository --> Destino
-    DestinoSalvoRepository --> DestinoSalvo
 
-    DestinoSalvo --> Usuario
-    DestinoSalvo --> Destino
+    AuthController ..> CadastroRequest
+    AuthController ..> LoginRequest
+    AuthController ..> LoginResponse
+    QuizController ..> PerguntaDto
+    QuizController ..> QuizRequest
 ```
 
 ---
