@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
+import { authApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ export default function Login() {
   const login = useStore(s => s.login);
   const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -22,12 +24,24 @@ export default function Login() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    login(form.email, form.email.split('@')[0]);
-    toast.success('Welcome back!');
-    navigate('/dashboard');
+
+    setLoading(true);
+    try {
+      const { data } = await authApi.login({
+        email: form.email,
+        senha: form.password,
+      });
+      login(data.email, data.nome, data.id, data.quizCompleto);
+      toast.success('Welcome back!');
+      navigate(data.quizCompleto ? '/dashboard' : '/quiz');
+    } catch {
+      toast.error('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,8 +80,12 @@ export default function Login() {
               />
               {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
             </div>
-            <Button type="submit" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4">
-              Sign In
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
