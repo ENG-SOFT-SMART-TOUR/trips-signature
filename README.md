@@ -185,6 +185,11 @@ classDiagram
             +String categoria
             +Set~String~ tags
         }
+        class DestinoSalvo {
+            +Long id
+            +Usuario usuario
+            +Destino destino
+        }
     }
 
     namespace domain_repository {
@@ -193,6 +198,11 @@ classDiagram
             +existsByEmail(email) boolean
         }
         class DestinoRepository
+        class DestinoSalvoRepository {
+            +findByUsuario(usuario) List~DestinoSalvo~
+            +existsByUsuarioAndDestino(u, d) boolean
+            +findByUsuarioAndDestino(u, d) Optional~DestinoSalvo~
+        }
     }
 
     namespace dto {
@@ -240,6 +250,10 @@ classDiagram
 
     UsuarioRepository --> Usuario
     DestinoRepository --> Destino
+    DestinoSalvoRepository --> DestinoSalvo
+
+    DestinoSalvo --> Usuario
+    DestinoSalvo --> Destino
 
     AuthController ..> CadastroRequest
     AuthController ..> LoginRequest
