@@ -8,6 +8,7 @@ import com.signaturetrips.api.domain.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -40,6 +41,7 @@ public class AuthService {
         );
     }
 
+    @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas"));
