@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, QuizAnswers } from '@/store/useStore';
+import { quizApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -80,6 +81,22 @@ export default function Quiz() {
   const current = questions[step];
   const progress = ((step + 1) / questions.length) * 100;
 
+  const user = useStore(s => s.user);
+
+  const submitQuiz = async (finalAnswers: QuizAnswers) => {
+    const tags = Object.values(finalAnswers).filter(Boolean).map(v => v!.toLowerCase());
+    try {
+      if (user?.id) {
+        await quizApi.responder({ usuarioId: user.id, tags });
+      }
+      setQuizAnswers(finalAnswers);
+      toast.success('Profile created! Here are your matches.');
+      navigate('/matches');
+    } catch {
+      toast.error('Failed to save profile. Please try again.');
+    }
+  };
+
   const select = (value: string) => {
     setAnswers(a => {
       const updated = { ...a, [current.key]: value };
@@ -89,11 +106,7 @@ export default function Quiz() {
           setStep(s => s + 1);
         }, 300);
       } else {
-        setTimeout(() => {
-          setQuizAnswers(updated);
-          toast.success('Profile created! Here are your matches.');
-          navigate('/matches');
-        }, 300);
+        setTimeout(() => submitQuiz(updated), 300);
       }
       return updated;
     });
@@ -108,9 +121,7 @@ export default function Quiz() {
       setDirection(1);
       setStep(s => s + 1);
     } else {
-      setQuizAnswers(answers);
-      toast.success('Profile created! Here are your matches.');
-      navigate('/matches');
+      submitQuiz(answers);
     }
   };
 
