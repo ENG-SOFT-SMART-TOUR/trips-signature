@@ -63,6 +63,7 @@ interface AppState {
   logout: () => void;
   register: (name: string, email: string) => void;
   setQuizAnswers: (answers: QuizAnswers) => void;
+  resetQuiz: () => void;
   toggleSaveDestination: (id: string) => void;
   addItinerary: (itinerary: Itinerary) => void;
   updateItinerary: (id: string, days: ItineraryDay[]) => void;
@@ -111,6 +112,12 @@ export const useStore = create<AppState>((set) => ({
   setQuizAnswers: (answers) => set((state) => {
     const tags = Object.values(answers).filter(Boolean).map(v => v!.toLowerCase());
     const user = state.user ? { ...state.user, quizAnswers: answers, tags, quizCompleto: true } : null;
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    return { user };
+  }),
+
+  resetQuiz: () => set((state) => {
+    const user = state.user ? { ...state.user, quizAnswers: {}, tags: [] } : null;
     if (user) localStorage.setItem('user', JSON.stringify(user));
     return { user };
   }),

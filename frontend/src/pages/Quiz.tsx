@@ -82,6 +82,7 @@ export default function Quiz() {
   const progress = ((step + 1) / questions.length) * 100;
 
   const user = useStore(s => s.user);
+  const isRetake = user?.quizCompleto ?? false;
 
   const submitQuiz = async (finalAnswers: QuizAnswers) => {
     const tags = Object.values(finalAnswers).filter(Boolean).map(v => v!.toLowerCase());
@@ -90,8 +91,13 @@ export default function Quiz() {
         await quizApi.responder({ usuarioId: user.id, tags });
       }
       setQuizAnswers(finalAnswers);
-      toast.success('Profile created! Here are your matches.');
-      navigate('/matches');
+      if (isRetake) {
+        toast.success('Profile updated!');
+        navigate('/dashboard');
+      } else {
+        toast.success('Profile created! Here are your matches.');
+        navigate('/matches');
+      }
     } catch {
       toast.error('Failed to save profile. Please try again.');
     }

@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 export default function Settings() {
-  const { user, savedDestinations, logout, updateProfile } = useStore();
+  const { user, savedDestinations, logout, updateProfile, resetQuiz } = useStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -84,7 +84,7 @@ export default function Settings() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/quiz')}
+              onClick={() => { resetQuiz(); navigate('/quiz'); }}
               className="gap-2"
             >
               <RefreshCw className="h-4 w-4" />
