@@ -31,6 +31,29 @@ export default function NewItinerary() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const today = new Date().toISOString().split('T')[0];
+  const minReturnDate = departure
+    ? new Date(new Date(departure + 'T00:00:00').getTime() + 86400000).toISOString().split('T')[0]
+    : today;
+
+  useEffect(() => {
+    if (!departure) return;
+    setErrors(prev => {
+      const e = { ...prev };
+      if (departure < today) {
+        e.departure = 'Departure must be in the future';
+      } else {
+        delete e.departure;
+      }
+      if (returnDate && returnDate <= departure) {
+        e.returnDate = 'Return must be after departure';
+      } else if (returnDate) {
+        delete e.returnDate;
+      }
+      return e;
+    });
+  }, [departure, returnDate]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -60,7 +83,6 @@ export default function NewItinerary() {
     if (!destId) e.destId = 'Select a destination';
     if (!departure) e.departure = 'Select departure date';
     if (!returnDate) e.returnDate = 'Select return date';
-    const today = new Date().toISOString().split('T')[0];
     if (departure && departure < today) e.departure = 'Departure must be in the future';
     if (departure && returnDate && returnDate <= departure) e.returnDate = 'Return must be after departure';
     setErrors(e);
@@ -172,7 +194,12 @@ export default function NewItinerary() {
                   <Input
                     type="date"
                     value={departure}
-                    onChange={e => setDeparture(e.target.value)}
+                    min={today}
+                    onChange={e => {
+                      const nova = e.target.value;
+                      setDeparture(nova);
+                      if (returnDate && returnDate <= nova) setReturnDate('');
+                    }}
                     className="bg-transparent border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary px-0"
                   />
                   {errors.departure && <p className="text-xs text-destructive">{errors.departure}</p>}
@@ -182,6 +209,7 @@ export default function NewItinerary() {
                   <Input
                     type="date"
                     value={returnDate}
+                    min={minReturnDate}
                     onChange={e => setReturnDate(e.target.value)}
                     className="bg-transparent border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary px-0"
                   />
