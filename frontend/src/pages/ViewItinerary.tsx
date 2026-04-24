@@ -5,7 +5,7 @@ import { getActivity } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, Edit, FileText, MapPin } from 'lucide-react';
+import { Calendar, CalendarRange, Clock, Edit, FileText, List, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -114,23 +114,59 @@ export default function ViewItinerary() {
         </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-          {/* Stats */}
-          <div className="flex flex-wrap gap-6 mb-8">
-            <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
-              <Calendar className="h-4 w-4 text-primary" />
-              <span>{dataIda} → {dataVolta}</span>
+          {/* Summary */}
+          <div className="rounded-2xl bg-surface border border-border/40 p-6 mb-8">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-1 block">
+                  {roteiro?.destino.categoria ?? 'Trip'}
+                </span>
+                <h2 className="font-display text-2xl font-semibold">{destNome}</h2>
+                <p className="font-body text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                  <MapPin className="h-3 w-3" /> {destPais}
+                </p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button variant="ghost" size="sm" onClick={() => navigate(`/itinerary/${id}/edit`)} className="rounded-full text-sm">
+                  <Edit className="h-4 w-4 mr-1" /> Edit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setExportOpen(true)} className="rounded-full text-sm">
+                  <FileText className="h-4 w-4 mr-1" /> Export
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
-              <Clock className="h-4 w-4 text-primary" />
-              <span>{dias.length} days · {totalAtividades} activities</span>
-            </div>
-            <div className="ml-auto flex gap-2">
-              <Button variant="ghost" onClick={() => navigate(`/itinerary/${id}/edit`)} className="rounded-full text-sm">
-                <Edit className="h-4 w-4 mr-1" /> Edit
-              </Button>
-              <Button variant="ghost" onClick={() => setExportOpen(true)} className="rounded-full text-sm">
-                <FileText className="h-4 w-4 mr-1" /> Export
-              </Button>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                  <CalendarRange className="h-4 w-4" />
+                  <span className="font-body text-xs uppercase tracking-wide">Period</span>
+                </div>
+                <span className="font-display text-base font-semibold">{dataIda}</span>
+                <span className="font-body text-xs text-muted-foreground">→ {dataVolta}</span>
+              </div>
+
+              <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                  <Calendar className="h-4 w-4" />
+                  <span className="font-body text-xs uppercase tracking-wide">Duration</span>
+                </div>
+                <span className="font-display text-3xl font-semibold leading-none">{dias.length}</span>
+                <span className="font-body text-xs text-muted-foreground">
+                  {dias.length === 1 ? 'day' : 'days'}
+                </span>
+              </div>
+
+              <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                  <List className="h-4 w-4" />
+                  <span className="font-body text-xs uppercase tracking-wide">Activities</span>
+                </div>
+                <span className="font-display text-3xl font-semibold leading-none">{totalAtividades}</span>
+                <span className="font-body text-xs text-muted-foreground">
+                  {totalAtividades === 1 ? 'activity' : 'activities'}
+                </span>
+              </div>
             </div>
           </div>
 
