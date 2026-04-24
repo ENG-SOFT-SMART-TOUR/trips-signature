@@ -54,6 +54,13 @@ public class RoteiroService {
     }
 
     @Transactional(readOnly = true)
+    public RoteiroResponse buscarPorId(Long id) {
+        Roteiro roteiro = roteiroRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
+        return toResponse(roteiro, roteiro.getDestino());
+    }
+
+    @Transactional(readOnly = true)
     public List<RoteiroResponse> listarPorUsuario(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));

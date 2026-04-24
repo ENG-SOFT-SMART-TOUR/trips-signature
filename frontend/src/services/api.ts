@@ -24,6 +24,9 @@ export const roteiroApi = {
   criar: (data: { usuarioId: number; destinoId: number; dataIda: string; dataVolta: string }) =>
     api.post('/roteiros', data),
 
+  buscarPorId: (id: number) =>
+    api.get(`/roteiros/${id}`),
+
   listarPorUsuario: (usuarioId: number) =>
     api.get(`/roteiros/usuario/${usuarioId}`),
 

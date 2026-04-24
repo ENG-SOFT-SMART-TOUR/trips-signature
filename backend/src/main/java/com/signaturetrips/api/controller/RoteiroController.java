@@ -20,6 +20,11 @@ public class RoteiroController {
         this.roteiroService = roteiroService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<RoteiroResponse> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(roteiroService.buscarPorId(id));
+    }
+
     @PostMapping
     public ResponseEntity<RoteiroResponse> criar(@Valid @RequestBody RoteiroRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roteiroService.criar(request));
