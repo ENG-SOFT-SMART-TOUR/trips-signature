@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,15 @@ import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { destinoApi } from '@/services/api';
 import type { Destino } from '@/types/index';
+
+function formatarData(iso: string): string {
+  const [year, month, day] = iso.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+  });
+}
 
 export default function NewItinerary() {
   const navigate = useNavigate();
@@ -95,8 +104,17 @@ export default function NewItinerary() {
     navigate(`/itinerary/${id}/edit`);
   };
 
-  const destSelecionado = destinos.find(d => d.id === destId);
-  const temSalvos = destinos.some(d => d.id === destId) && destinos.length < 19;
+  const diasPreview = useMemo<{ dayNumber: number; iso: string }[]>(() => {
+    if (!departure || !returnDate || returnDate <= departure) return [];
+    const dep = new Date(departure + 'T00:00:00');
+    const ret = new Date(returnDate + 'T00:00:00');
+    const dayCount = Math.ceil((ret.getTime() - dep.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return Array.from({ length: dayCount }, (_, i) => {
+      const date = new Date(dep);
+      date.setDate(date.getDate() + i);
+      return { dayNumber: i + 1, iso: date.toISOString().split('T')[0] };
+    });
+  }, [departure, returnDate]);
 
   return (
     <AppLayout>
@@ -161,11 +179,39 @@ export default function NewItinerary() {
                 </div>
               </div>
 
+              {diasPreview.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-body text-sm font-medium">Trip days</Label>
+                    <span className="font-body text-xs text-muted-foreground">
+                      {diasPreview.length} {diasPreview.length === 1 ? 'day' : 'days'}
+                    </span>
+                  </div>
+                  <div className="rounded-lg border border-border overflow-hidden max-h-52 overflow-y-auto">
+                    {diasPreview.map((d, i) => (
+                      <div
+                        key={d.dayNumber}
+                        className={`flex items-center gap-4 px-4 py-2.5 ${
+                          i < diasPreview.length - 1 ? 'border-b border-border/50' : ''
+                        }`}
+                      >
+                        <span className="font-body text-xs text-muted-foreground w-10 shrink-0">
+                          Day {d.dayNumber}
+                        </span>
+                        <span className="font-body text-sm capitalize">{formatarData(d.iso)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               >
-                Create Itinerary
+                {diasPreview.length > 0
+                  ? `Create ${diasPreview.length}-day Itinerary`
+                  : 'Create Itinerary'}
               </Button>
             </form>
           )}
