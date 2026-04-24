@@ -26,3 +26,12 @@ export interface Destino {
   tags: string[];
   matchPercentual?: number;
 }
+
+export interface Roteiro {
+  id: number;
+  destino: Destino;
+  dataIda: string;
+  dataVolta: string;
+  totalDias: number;
+  criadoEm: string;
+}

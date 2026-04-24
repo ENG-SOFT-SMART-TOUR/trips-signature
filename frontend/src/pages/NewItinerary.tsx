@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
-import { destinoApi } from '@/services/api';
+import { destinoApi, roteiroApi } from '@/services/api';
 import type { Destino } from '@/types/index';
 
 function formatarData(iso: string): string {
@@ -29,6 +29,7 @@ export default function NewItinerary() {
   const [returnDate, setReturnDate] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -66,42 +67,51 @@ export default function NewItinerary() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (ev: React.FormEvent) => {
+  const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (!validate() || !user || !destId) return;
 
-    const dep = new Date(departure);
-    const ret = new Date(returnDate);
-    const dayCount = Math.ceil((ret.getTime() - dep.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const days = Array.from({ length: dayCount }, (_, i) => {
-      const date = new Date(dep);
-      date.setDate(date.getDate() + i);
-      return { dayNumber: i + 1, date: date.toISOString().split('T')[0], activityIds: [] };
-    });
+    setSubmitting(true);
+    try {
+      const res = await roteiroApi.criar({
+        usuarioId: user.id,
+        destinoId: destId,
+        dataIda: departure,
+        dataVolta: returnDate,
+      });
 
-    const id = `it-${Date.now()}`;
-    addItinerary({
-      id,
-      destinationId: String(destId),
-      departureDate: departure,
-      returnDate,
-      days,
-      createdAt: new Date().toISOString(),
-    });
+      const roteiro = res.data;
+      const localId = String(roteiro.id);
 
-    const diaryId = `di-${Date.now()}`;
-    addDiary({
-      id: diaryId,
-      destinationId: String(destId),
-      itineraryId: id,
-      isPublic: false,
-      shareToken: Math.random().toString(36).substring(2, 10),
-      entries: [],
-      createdAt: new Date().toISOString(),
-    });
+      const days = diasPreview.map(d => ({ dayNumber: d.dayNumber, date: d.iso, activityIds: [] }));
 
-    toast.success('Itinerary created! Start adding activities.');
-    navigate(`/itinerary/${id}/edit`);
+      addItinerary({
+        id: localId,
+        destinationId: String(destId),
+        departureDate: departure,
+        returnDate,
+        days,
+        createdAt: roteiro.criadoEm,
+      });
+
+      const diaryId = `di-${Date.now()}`;
+      addDiary({
+        id: diaryId,
+        destinationId: String(destId),
+        itineraryId: localId,
+        isPublic: false,
+        shareToken: Math.random().toString(36).substring(2, 10),
+        entries: [],
+        createdAt: new Date().toISOString(),
+      });
+
+      toast.success('Itinerary created! Start adding activities.');
+      navigate(`/itinerary/${localId}/edit`);
+    } catch {
+      toast.error('Erro ao salvar roteiro. Tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const diasPreview = useMemo<{ dayNumber: number; iso: string }[]>(() => {
@@ -207,11 +217,14 @@ export default function NewItinerary() {
 
               <Button
                 type="submit"
+                disabled={submitting}
                 className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               >
-                {diasPreview.length > 0
-                  ? `Create ${diasPreview.length}-day Itinerary`
-                  : 'Create Itinerary'}
+                {submitting
+                  ? 'Saving...'
+                  : diasPreview.length > 0
+                    ? `Create ${diasPreview.length}-day Itinerary`
+                    : 'Create Itinerary'}
               </Button>
             </form>
           )}

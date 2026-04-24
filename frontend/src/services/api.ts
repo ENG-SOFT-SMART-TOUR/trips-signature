@@ -20,6 +20,17 @@ export const quizApi = {
     api.post("/quiz/responder", data),
 };
 
+export const roteiroApi = {
+  criar: (data: { usuarioId: number; destinoId: number; dataIda: string; dataVolta: string }) =>
+    api.post('/roteiros', data),
+
+  listarPorUsuario: (usuarioId: number) =>
+    api.get(`/roteiros/usuario/${usuarioId}`),
+
+  deletar: (roteiroId: number, usuarioId: number) =>
+    api.delete(`/roteiros/${roteiroId}/usuario/${usuarioId}`),
+};
+
 export const destinoApi = {
   listar: () => api.get("/destinos"),
 
