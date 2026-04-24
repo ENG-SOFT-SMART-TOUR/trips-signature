@@ -20,4 +20,17 @@ export const quizApi = {
     api.post("/quiz/responder", data),
 };
 
+export const destinoApi = {
+  listar: () => api.get("/destinos"),
+
+  listarSalvos: (usuarioId: number) =>
+    api.get(`/destinos/salvos/${usuarioId}`),
+
+  salvar: (destinoId: number, usuarioId: number) =>
+    api.post(`/destinos/${destinoId}/salvar/${usuarioId}`),
+
+  remover: (destinoId: number, usuarioId: number) =>
+    api.delete(`/destinos/${destinoId}/salvar/${usuarioId}`),
+};
+
 export default api;
