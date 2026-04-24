@@ -49,7 +49,8 @@ public class RoteiroService {
         roteiro.setDataIda(request.dataIda());
         roteiro.setDataVolta(request.dataVolta());
 
-        return toResponse(roteiroRepository.save(roteiro));
+        Roteiro salvo = roteiroRepository.save(roteiro);
+        return toResponse(salvo, destino);
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +58,7 @@ public class RoteiroService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         return roteiroRepository.findByUsuarioOrderByCriadoEmDesc(usuario).stream()
-                .map(this::toResponse)
+                .map(r -> toResponse(r, r.getDestino()))
                 .toList();
     }
 
@@ -73,8 +74,7 @@ public class RoteiroService {
         roteiroRepository.delete(roteiro);
     }
 
-    private RoteiroResponse toResponse(Roteiro r) {
-        Destino d = r.getDestino();
+    private RoteiroResponse toResponse(Roteiro r, Destino d) {
         DestinoResponse destino = new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
         int totalDias = (int) (r.getDataVolta().toEpochDay() - r.getDataIda().toEpochDay()) + 1;
         return new RoteiroResponse(r.getId(), destino, r.getDataIda(), r.getDataVolta(), totalDias, r.getCriadoEm());
