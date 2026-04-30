@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CalendarRange, Clock, Download, Edit, FileText, List, MapPin, Printer } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -36,8 +37,13 @@ export default function ViewItinerary() {
 
   useEffect(() => {
     const numId = Number(id);
+
+    // Se o roteiro já está no Zustand, exibe imediatamente sem spinner
+    if (itinerary) setLoading(false);
+
     if (isNaN(numId)) { setLoading(false); return; }
 
+    // Busca em background — atualiza dados sem bloquear a tela
     roteiroApi.buscarPorId(numId)
       .then(res => setRoteiro(res.data))
       .catch(() => {})
@@ -130,11 +136,16 @@ export default function ViewItinerary() {
     win.print();
   };
 
-  if (loading) {
+  if (!itinerary && loading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <span className="font-body text-sm text-muted-foreground">Loading itinerary...</span>
+        <Skeleton className="h-64 md:h-80 w-full rounded-none" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-4">
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-10 w-48 rounded-full" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
         </div>
       </AppLayout>
     );
