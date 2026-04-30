@@ -55,7 +55,7 @@ public class RoteiroService {
 
     @Transactional(readOnly = true)
     public RoteiroResponse buscarPorId(Long id) {
-        Roteiro roteiro = roteiroRepository.findById(id)
+        Roteiro roteiro = roteiroRepository.findWithAssociacoesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
         return toResponse(roteiro, roteiro.getDestino());
     }
@@ -71,7 +71,7 @@ public class RoteiroService {
 
     @Transactional
     public void deletar(Long roteiroId, Long usuarioId) {
-        Roteiro roteiro = roteiroRepository.findById(roteiroId)
+        Roteiro roteiro = roteiroRepository.findWithAssociacoesById(roteiroId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
 
         if (!roteiro.getUsuario().getId().equals(usuarioId)) {
