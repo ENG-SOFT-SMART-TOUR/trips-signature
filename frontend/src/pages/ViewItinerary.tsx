@@ -5,7 +5,7 @@ import { getActivity } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, CalendarRange, Clock, Edit, FileText, List, MapPin } from 'lucide-react';
+import { Calendar, CalendarRange, Clock, Download, Edit, FileText, List, MapPin, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -69,12 +69,66 @@ export default function ViewItinerary() {
   const toggleDay = (n: number) =>
     setOpenDays(prev => prev.includes(n) ? prev.filter(d => d !== n) : [...prev, n]);
 
-  const exportText = dias.map(day => {
-    const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
-    return `Day ${day.dayNumber} — ${day.date}\n${
-      acts.map(a => `  • ${a!.name} (${a!.shift}, ${a!.duration})`).join('\n') || '  No activities'
-    }`;
-  }).join('\n\n');
+  const fullExportText = [
+    `${destNome} — ${destPais}`,
+    `${dataIda} → ${dataVolta} · ${dias.length} ${dias.length === 1 ? 'day' : 'days'}`,
+    '',
+    ...dias.map(day => {
+      const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
+      const header = `Day ${day.dayNumber} — ${day.date}`;
+      const lines = acts.length > 0
+        ? acts.map(a => `  • ${a!.name} (${a!.shift}, ${a!.duration})`)
+        : ['  No activities planned'];
+      return [header, ...lines].join('\n');
+    }),
+  ].join('\n\n');
+
+  const handleDownload = () => {
+    const blob = new Blob([fullExportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${destNome.replace(/\s+/g, '-')}-itinerary.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handlePrint = () => {
+    const diasHtml = dias.map(day => {
+      const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
+      const actsHtml = acts.length > 0
+        ? acts.map(a => `<li><strong>${a!.name}</strong> &mdash; ${a!.shift}, ${a!.duration}</li>`).join('')
+        : '<li style="color:#888">No activities planned</li>';
+      return `
+        <div class="day">
+          <h3>Day ${day.dayNumber} <span class="date">${day.date}</span></h3>
+          <ul>${actsHtml}</ul>
+        </div>`;
+    }).join('');
+
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head>
+      <title>${destNome} — Itinerary</title>
+      <style>
+        body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #1a1a1a; }
+        h1 { font-size: 28px; margin-bottom: 4px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 32px; }
+        .day { margin-bottom: 24px; border-top: 1px solid #ddd; padding-top: 16px; }
+        h3 { font-size: 16px; margin: 0 0 8px; }
+        .date { font-weight: normal; color: #888; font-size: 14px; margin-left: 8px; }
+        ul { margin: 0; padding-left: 20px; }
+        li { font-size: 14px; margin-bottom: 4px; }
+        @media print { body { margin: 20px; } }
+      </style>
+    </head><body>
+      <h1>${destNome}</h1>
+      <p class="subtitle">${destPais} &nbsp;·&nbsp; ${dataIda} → ${dataVolta} &nbsp;·&nbsp; ${dias.length} days</p>
+      ${diasHtml}
+    </body></html>`);
+    win.document.close();
+    win.print();
+  };
 
   if (loading) {
     return (
@@ -272,15 +326,31 @@ export default function ViewItinerary() {
             <DialogHeader>
               <DialogTitle className="font-display">Export Itinerary</DialogTitle>
             </DialogHeader>
-            <pre className="text-xs font-body whitespace-pre-wrap bg-surface rounded-lg p-4 max-h-96 overflow-y-auto">
-              {`${destNome}, ${destPais}\n${dataIda} → ${dataVolta}\n\n${exportText}`}
+            <pre className="text-xs font-body whitespace-pre-wrap bg-surface rounded-lg p-4 max-h-72 overflow-y-auto">
+              {fullExportText}
             </pre>
-            <Button
-              onClick={() => { navigator.clipboard.writeText(exportText); toast.success('Copied to clipboard!'); }}
-              className="rounded-full bg-primary text-primary-foreground"
-            >
-              Copy to Clipboard
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => { navigator.clipboard.writeText(fullExportText); toast.success('Copied to clipboard!'); }}
+                className="flex-1 rounded-full"
+              >
+                <FileText className="h-4 w-4 mr-2" /> Copy
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDownload}
+                className="flex-1 rounded-full"
+              >
+                <Download className="h-4 w-4 mr-2" /> Download .txt
+              </Button>
+              <Button
+                onClick={handlePrint}
+                className="flex-1 rounded-full bg-primary text-primary-foreground"
+              >
+                <Printer className="h-4 w-4 mr-2" /> Print
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </PageTransition>
