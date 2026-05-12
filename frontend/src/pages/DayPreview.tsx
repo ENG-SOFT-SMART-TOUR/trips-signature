@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
-import { getActivity } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Clock, ArrowLeft, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
-import { roteiroApi } from '@/services/api';
-import type { Roteiro } from '@/types/index';
+import { roteiroApi, atividadeApi } from '@/services/api';
+import type { Roteiro, Atividade } from '@/types/index';
 
 function formatarDia(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -24,6 +23,7 @@ export default function DayPreview() {
   const { itineraries } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
+  const [atividades, setAtividades] = useState<Atividade[]>([]);
   const dayNum = parseInt(dayNumber || '1');
   const itinerary = itineraries.find(it => it.id === id);
 
@@ -31,7 +31,11 @@ export default function DayPreview() {
     const numId = Number(id);
     if (isNaN(numId)) return;
     roteiroApi.buscarPorId(numId)
-      .then(res => setRoteiro(res.data))
+      .then(res => {
+        setRoteiro(res.data);
+        return atividadeApi.listarPorDestino(res.data.destino.id);
+      })
+      .then(res => setAtividades(res.data))
       .catch(() => {});
   }, [id]);
 
@@ -52,7 +56,9 @@ export default function DayPreview() {
   const day = dias.find(d => d.dayNumber === dayNum);
   const destNome = roteiro?.destino.nome ?? 'Unknown';
   const destPais = roteiro?.destino.pais ?? '';
-  const acts = day?.activityIds.map(aid => getActivity(aid)).filter(Boolean) ?? [];
+  const acts = day?.activityIds
+    .map(aid => atividades.find(a => String(a.id) === aid))
+    .filter(Boolean) as Atividade[] ?? [];
   const hasPrev = dayNum > 1;
   const hasNext = dayNum < dias.length;
 
@@ -90,33 +96,33 @@ export default function DayPreview() {
                 No activities planned for this day.
               </div>
             ) : (
-              acts.map((act, i) => act && (
+              acts.map((act, i) => (
                 <div key={act.id}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
                   >
-                    <Link to={`/activity/${act.id}`} className="block group hover-lift">
-                      <div className="rounded-xl overflow-hidden bg-surface border border-border/40">
+                    <div className="rounded-xl overflow-hidden bg-surface border border-border/40">
+                      {act.foto && (
                         <img
-                          src={act.images[0]}
-                          alt={act.name}
-                          className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                          src={act.foto}
+                          alt={act.nome}
+                          className="w-full h-48 object-cover"
                         />
-                        <div className="p-5">
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <Badge variant="secondary" className="rounded-full text-xs">{act.category}</Badge>
-                            <span className="text-xs text-muted-foreground capitalize font-body">{act.shift}</span>
-                            <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                              <Clock className="h-3 w-3" /> {act.duration}
-                            </span>
-                          </div>
-                          <h3 className="font-display text-lg font-semibold mb-1">{act.name}</h3>
-                          <p className="font-body text-xs text-muted-foreground line-clamp-2">{act.description}</p>
+                      )}
+                      <div className="p-5">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <Badge variant="secondary" className="rounded-full text-xs">{act.categoria}</Badge>
+                          <span className="text-xs text-muted-foreground capitalize font-body">{act.turno}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                            <Clock className="h-3 w-3" /> {act.duracao}
+                          </span>
                         </div>
+                        <h3 className="font-display text-lg font-semibold mb-1">{act.nome}</h3>
+                        <p className="font-body text-xs text-muted-foreground line-clamp-2">{act.descricao}</p>
                       </div>
-                    </Link>
+                    </div>
                   </motion.div>
                   {i < acts.length - 1 && (
                     <div className="flex items-center justify-center py-3 gap-3">

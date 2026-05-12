@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
-import { getActivity } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,8 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ItineraryMap from '@/components/ItineraryMap';
-import { roteiroApi } from '@/services/api';
-import type { Roteiro } from '@/types/index';
+import { roteiroApi, atividadeApi } from '@/services/api';
+import type { Roteiro, Atividade } from '@/types/index';
 
 function formatarDia(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -29,6 +28,7 @@ export default function ViewItinerary() {
   const { itineraries } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
+  const [atividades, setAtividades] = useState<Atividade[]>([]);
   const [loading, setLoading] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
   const [openDays, setOpenDays] = useState<number[]>([1]);
@@ -38,17 +38,21 @@ export default function ViewItinerary() {
   useEffect(() => {
     const numId = Number(id);
 
-    // Se o roteiro já está no Zustand, exibe imediatamente sem spinner
     if (itinerary) setLoading(false);
 
     if (isNaN(numId)) { setLoading(false); return; }
 
-    // Busca em background — atualiza dados sem bloquear a tela
     roteiroApi.buscarPorId(numId)
-      .then(res => setRoteiro(res.data))
+      .then(res => {
+        setRoteiro(res.data);
+        return atividadeApi.listarPorDestino(res.data.destino.id);
+      })
+      .then(res => setAtividades(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
+
+  const getAtividade = (aid: string) => atividades.find(a => String(a.id) === aid);
 
   const dias = useMemo(() => {
     if (roteiro) {
@@ -80,10 +84,10 @@ export default function ViewItinerary() {
     `${dataIda} → ${dataVolta} · ${dias.length} ${dias.length === 1 ? 'day' : 'days'}`,
     '',
     ...dias.map(day => {
-      const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
+      const acts = day.activityIds.map(aid => getAtividade(aid)).filter(Boolean);
       const header = `Day ${day.dayNumber} — ${day.date}`;
       const lines = acts.length > 0
-        ? acts.map(a => `  • ${a!.name} (${a!.shift}, ${a!.duration})`)
+        ? acts.map(a => `  • ${a!.nome} (${a!.turno}, ${a!.duracao})`)
         : ['  No activities planned'];
       return [header, ...lines].join('\n');
     }),
@@ -101,9 +105,9 @@ export default function ViewItinerary() {
 
   const handlePrint = () => {
     const diasHtml = dias.map(day => {
-      const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
+      const acts = day.activityIds.map(aid => getAtividade(aid)).filter(Boolean);
       const actsHtml = acts.length > 0
-        ? acts.map(a => `<li><strong>${a!.name}</strong> &mdash; ${a!.shift}, ${a!.duration}</li>`).join('')
+        ? acts.map(a => `<li><strong>${a!.nome}</strong> &mdash; ${a!.turno}, ${a!.duracao}</li>`).join('')
         : '<li style="color:#888">No activities planned</li>';
       return `
         <div class="day">
@@ -243,7 +247,7 @@ export default function ViewItinerary() {
 
             <TabsContent value="list" className="space-y-3">
               {dias.map(day => {
-                const acts = day.activityIds.map(aid => getActivity(aid)).filter(Boolean);
+                const acts = day.activityIds.map(aid => getAtividade(aid)).filter(Boolean);
                 const isOpen = openDays.includes(day.dayNumber);
                 return (
                   <div key={day.dayNumber} className="rounded-xl bg-surface overflow-hidden border border-border/40">
@@ -288,26 +292,25 @@ export default function ViewItinerary() {
                           <div className="px-5 py-4 space-y-3">
                             {acts.map((act, i) => act && (
                               <div key={act.id}>
-                                <Link
-                                  to={`/activity/${act.id}`}
-                                  className="flex items-center gap-4 p-3 rounded-lg hover:bg-card transition-colors"
-                                >
-                                  <img
-                                    src={act.images[0]}
-                                    alt={act.name}
-                                    className="w-14 h-14 rounded-lg object-cover shrink-0"
-                                  />
+                                <div className="flex items-center gap-4 p-3 rounded-lg bg-card">
+                                  {act.foto && (
+                                    <img
+                                      src={act.foto}
+                                      alt={act.nome}
+                                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                                    />
+                                  )}
                                   <div className="flex-1 min-w-0">
-                                    <span className="font-body text-sm font-medium block truncate">{act.name}</span>
+                                    <span className="font-body text-sm font-medium block truncate">{act.nome}</span>
                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                      <Badge variant="secondary" className="text-xs rounded-full">{act.category}</Badge>
-                                      <span className="text-xs text-muted-foreground capitalize">{act.shift}</span>
+                                      <Badge variant="secondary" className="text-xs rounded-full">{act.categoria}</Badge>
+                                      <span className="text-xs text-muted-foreground capitalize">{act.turno}</span>
                                       <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                                        <Clock className="h-3 w-3" /> {act.duration}
+                                        <Clock className="h-3 w-3" /> {act.duracao}
                                       </span>
                                     </div>
                                   </div>
-                                </Link>
+                                </div>
                                 {i < acts.length - 1 && (
                                   <div className="flex items-center gap-2 py-1 pl-4">
                                     <div className="h-5 w-px bg-border ml-6" />
