@@ -14,11 +14,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AuthService {
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    private final BCryptPasswordEncoder encoder;
     private final UsuarioRepository usuarioRepository;
 
-    public AuthService(UsuarioRepository usuarioRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder encoder) {
         this.usuarioRepository = usuarioRepository;
+        this.encoder = encoder;
     }
 
     public LoginResponse cadastrar(CadastroRequest request) {
