@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/store/useStore';
-import { Heart } from 'lucide-react';
+import { Heart, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
+import EmptyState from '@/components/EmptyState';
 import { destinoApi } from '@/services/api';
 import type { Destino } from '@/types/index';
 
@@ -87,6 +88,15 @@ export default function Matches() {
             <h1 className="font-display text-4xl font-semibold">Destinations for you</h1>
           </div>
 
+          {destinos.length === 0 ? (
+            <EmptyState
+              icon={MapPin}
+              title="Nenhum destino disponível"
+              description="Ainda não há destinos cadastrados para sugerir. Volte mais tarde para descobrir novas combinações."
+              actionLabel="Refazer quiz"
+              actionTo="/quiz"
+            />
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {destinos.map((dest, i) => (
               <motion.div
@@ -137,6 +147,7 @@ export default function Matches() {
               </motion.div>
             ))}
           </div>
+          )}
         </div>
       </PageTransition>
     </AppLayout>
