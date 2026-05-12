@@ -1,5 +1,6 @@
 package com.signaturetrips.api.domain.entity;
 
+import com.signaturetrips.api.domain.enums.Categoria;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,7 @@ public class Destino {
 
     private String pais;
 
-    private String categoria;
+    private Categoria categoria;
 
     @ElementCollection
     @CollectionTable(name = "destino_tags", joinColumns = @JoinColumn(name = "destino_id"))

@@ -1,6 +1,7 @@
 package com.signaturetrips.api.config;
 
 import com.signaturetrips.api.domain.entity.Destino;
+import com.signaturetrips.api.domain.enums.Categoria;
 import com.signaturetrips.api.domain.repository.DestinoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,7 @@ public class DataSeeder implements CommandLineRunner {
         d.setPais(pais);
         d.setDescricao(descricao);
         d.setFoto(foto);
-        d.setCategoria(categoria);
+        d.setCategoria(Categoria.fromValue(categoria));
         d.setTags(tags);
         return d;
     }

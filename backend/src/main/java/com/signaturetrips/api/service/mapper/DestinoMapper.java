@@ -14,7 +14,7 @@ public class DestinoMapper {
                 destino.getDescricao(),
                 destino.getFoto(),
                 destino.getPais(),
-                destino.getCategoria(),
+                destino.getCategoria() == null ? null : destino.getCategoria().getValue(),
                 destino.getTags()
         );
     }
