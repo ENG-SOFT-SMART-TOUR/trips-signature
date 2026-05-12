@@ -1,6 +1,7 @@
 package com.signaturetrips.api.domain.repository;
 
 import com.signaturetrips.api.domain.entity.RoteiroAtividade;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 
 public interface RoteiroAtividadeRepository extends JpaRepository<RoteiroAtividade, Long> {
 
+    @EntityGraph(attributePaths = {"atividade"})
     List<RoteiroAtividade> findByRoteiroId(Long roteiroId);
 
     int countByRoteiroIdAndDiaNumero(Long roteiroId, int diaNumero);
