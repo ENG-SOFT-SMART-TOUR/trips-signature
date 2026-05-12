@@ -1,7 +1,10 @@
 package com.signaturetrips.api.controller;
 
+import com.signaturetrips.api.dto.RoteiroAtividadeRequest;
+import com.signaturetrips.api.dto.RoteiroAtividadeResponse;
 import com.signaturetrips.api.dto.RoteiroRequest;
 import com.signaturetrips.api.dto.RoteiroResponse;
+import com.signaturetrips.api.service.RoteiroAtividadeService;
 import com.signaturetrips.api.service.RoteiroService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,9 +18,11 @@ import java.util.List;
 public class RoteiroController {
 
     private final RoteiroService roteiroService;
+    private final RoteiroAtividadeService roteiroAtividadeService;
 
-    public RoteiroController(RoteiroService roteiroService) {
+    public RoteiroController(RoteiroService roteiroService, RoteiroAtividadeService roteiroAtividadeService) {
         this.roteiroService = roteiroService;
+        this.roteiroAtividadeService = roteiroAtividadeService;
     }
 
     @GetMapping("/{id}")
@@ -38,6 +43,27 @@ public class RoteiroController {
     @DeleteMapping("/{id}/usuario/{usuarioId}")
     public ResponseEntity<Void> deletar(@PathVariable Long id, @PathVariable Long usuarioId) {
         roteiroService.deletar(id, usuarioId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/atividades")
+    public ResponseEntity<List<RoteiroAtividadeResponse>> listarAtividades(@PathVariable Long id) {
+        return ResponseEntity.ok(roteiroAtividadeService.listar(id));
+    }
+
+    @PostMapping("/{id}/atividades")
+    public ResponseEntity<RoteiroAtividadeResponse> adicionarAtividade(
+            @PathVariable Long id,
+            @Valid @RequestBody RoteiroAtividadeRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(roteiroAtividadeService.adicionar(id, request));
+    }
+
+    @DeleteMapping("/{id}/atividades/{atividadeId}/dia/{diaNumero}")
+    public ResponseEntity<Void> removerAtividade(
+            @PathVariable Long id,
+            @PathVariable Long atividadeId,
+            @PathVariable int diaNumero) {
+        roteiroAtividadeService.remover(id, atividadeId, diaNumero);
         return ResponseEntity.noContent().build();
     }
 }

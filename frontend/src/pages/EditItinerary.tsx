@@ -8,7 +8,7 @@ import { Plus, X, ArrowLeft, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
-import { atividadeApi, roteiroApi } from '@/services/api';
+import { atividadeApi, roteiroApi, roteiroAtividadeApi } from '@/services/api';
 import type { Atividade, Roteiro } from '@/types/index';
 
 export default function EditItinerary() {
@@ -29,9 +29,27 @@ export default function EditItinerary() {
     roteiroApi.buscarPorId(numId)
       .then(res => {
         setRoteiro(res.data);
-        return atividadeApi.listarPorDestino(res.data.destino.id);
+        return Promise.all([
+          atividadeApi.listarPorDestino(res.data.destino.id),
+          roteiroAtividadeApi.listar(numId),
+        ]);
       })
-      .then(res => setAtividades(res.data))
+      .then(([atividadesRes, diasRes]) => {
+        setAtividades(atividadesRes.data);
+
+        if (itinerary) {
+          const actsByDay: Record<number, string[]> = {};
+          for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
+            if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
+            actsByDay[ra.diaNumero].push(String(ra.atividadeId));
+          }
+          const updatedDays = itinerary.days.map(d => ({
+            ...d,
+            activityIds: actsByDay[d.dayNumber] ?? [],
+          }));
+          updateItinerary(itinerary.id, updatedDays);
+        }
+      })
       .catch(() => toast.error('Erro ao carregar atividades'))
       .finally(() => setLoadingAtividades(false));
   }, [id]);
@@ -48,30 +66,41 @@ export default function EditItinerary() {
   const dayAtividades = currentDay?.activityIds
     .map(aid => atividades.find(a => String(a.id) === aid))
     .filter(Boolean) as Atividade[];
-  const allAddedIds = itinerary.days.flatMap(d => d.activityIds);
+  const destNome = roteiro?.destino.nome ?? '...';
+  const destPais = roteiro?.destino.pais ?? '';
 
-  const addActivity = (act: Atividade) => {
+  const addActivity = async (act: Atividade) => {
     if (currentDay.activityIds.length >= 5) {
       toast.error('Maximum 5 activities per day');
       return;
     }
-    const newDays = itinerary.days.map((d, i) =>
-      i === selectedDay ? { ...d, activityIds: [...d.activityIds, String(act.id)] } : d
-    );
-    updateItinerary(itinerary.id, newDays);
-    toast.success('Activity added');
+    const numId = Number(id);
+    try {
+      await roteiroAtividadeApi.adicionar(numId, act.id, currentDay.dayNumber);
+      const newDays = itinerary.days.map((d, i) =>
+        i === selectedDay ? { ...d, activityIds: [...d.activityIds, String(act.id)] } : d
+      );
+      updateItinerary(itinerary.id, newDays);
+      toast.success('Activity added');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Erro ao adicionar atividade';
+      toast.error(msg);
+    }
   };
 
-  const removeActivity = (actId: string) => {
-    const newDays = itinerary.days.map((d, i) =>
-      i === selectedDay ? { ...d, activityIds: d.activityIds.filter(a => a !== actId) } : d
-    );
-    updateItinerary(itinerary.id, newDays);
-    toast('Activity removed');
+  const removeActivity = async (actId: string) => {
+    const numId = Number(id);
+    try {
+      await roteiroAtividadeApi.remover(numId, Number(actId), currentDay.dayNumber);
+      const newDays = itinerary.days.map((d, i) =>
+        i === selectedDay ? { ...d, activityIds: d.activityIds.filter(a => a !== actId) } : d
+      );
+      updateItinerary(itinerary.id, newDays);
+      toast('Activity removed');
+    } catch {
+      toast.error('Erro ao remover atividade');
+    }
   };
-
-  const destNome = roteiro?.destino.nome ?? '...';
-  const destPais = roteiro?.destino.pais ?? '';
 
   return (
     <AppLayout>
@@ -116,7 +145,11 @@ export default function EditItinerary() {
                 <h2 className="font-display text-xl font-semibold mb-4">
                   Day {currentDay?.dayNumber} Activities
                 </h2>
-                {dayAtividades.length === 0 ? (
+                {loadingAtividades ? (
+                  <div className="space-y-3">
+                    {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+                  </div>
+                ) : dayAtividades.length === 0 ? (
                   <p className="text-sm text-muted-foreground font-body">No activities yet. Add some below.</p>
                 ) : (
                   <div className="space-y-3">

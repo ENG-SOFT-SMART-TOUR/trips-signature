@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ItineraryMap from '@/components/ItineraryMap';
-import { roteiroApi, atividadeApi } from '@/services/api';
+import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
 import type { Roteiro, Atividade } from '@/types/index';
 
 function formatarDia(iso: string): string {
@@ -25,7 +25,7 @@ function formatarDia(iso: string): string {
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { itineraries } = useStore();
+  const { itineraries, updateItinerary } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
@@ -45,9 +45,26 @@ export default function ViewItinerary() {
     roteiroApi.buscarPorId(numId)
       .then(res => {
         setRoteiro(res.data);
-        return atividadeApi.listarPorDestino(res.data.destino.id);
+        return Promise.all([
+          atividadeApi.listarPorDestino(res.data.destino.id),
+          roteiroAtividadeApi.listar(numId),
+        ]);
       })
-      .then(res => setAtividades(res.data))
+      .then(([atividadesRes, diasRes]) => {
+        setAtividades(atividadesRes.data);
+        const actsByDay: Record<number, string[]> = {};
+        for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
+          if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
+          actsByDay[ra.diaNumero].push(String(ra.atividadeId));
+        }
+        if (itinerary) {
+          const updatedDays = itinerary.days.map(d => ({
+            ...d,
+            activityIds: actsByDay[d.dayNumber] ?? [],
+          }));
+          updateItinerary(itinerary.id, updatedDays);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);

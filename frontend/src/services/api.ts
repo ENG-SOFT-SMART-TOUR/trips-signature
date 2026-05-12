@@ -39,6 +39,17 @@ export const atividadeApi = {
     api.get(`/atividades/destino/${destinoId}`),
 };
 
+export const roteiroAtividadeApi = {
+  listar: (roteiroId: number) =>
+    api.get(`/roteiros/${roteiroId}/atividades`),
+
+  adicionar: (roteiroId: number, atividadeId: number, diaNumero: number) =>
+    api.post(`/roteiros/${roteiroId}/atividades`, { atividadeId, diaNumero }),
+
+  remover: (roteiroId: number, atividadeId: number, diaNumero: number) =>
+    api.delete(`/roteiros/${roteiroId}/atividades/${atividadeId}/dia/${diaNumero}`),
+};
+
 export const destinoApi = {
   listar: () => api.get("/destinos"),
 
