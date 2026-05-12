@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/store/useStore';
-import { Heart } from 'lucide-react';
+import { Heart, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
+import EmptyState from '@/components/EmptyState';
 import { destinoApi } from '@/services/api';
 import type { Destino } from '@/types/index';
 
@@ -57,11 +58,11 @@ export default function Matches() {
       if (jaSalvo) {
         await destinoApi.remover(destino.id, user.id);
         setSalvos(prev => { const s = new Set(prev); s.delete(destino.id); return s; });
-        toast(`${destino.nome} removed`);
+        toast(`${destino.nome} removido dos salvos`);
       } else {
         await destinoApi.salvar(destino.id, user.id);
         setSalvos(prev => new Set(prev).add(destino.id));
-        toast(`${destino.nome} saved to your collection`);
+        toast(`${destino.nome} salvo na sua coleção`);
       }
     } catch {
       toast.error('Erro ao salvar destino');
@@ -72,7 +73,7 @@ export default function Matches() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <span className="font-body text-sm text-muted-foreground">Loading destinations...</span>
+          <span className="font-body text-sm text-muted-foreground">Carregando destinos...</span>
         </div>
       </AppLayout>
     );
@@ -83,10 +84,19 @@ export default function Matches() {
       <PageTransition>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-12">
-            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Your matches</span>
-            <h1 className="font-display text-4xl font-semibold">Destinations for you</h1>
+            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Suas combinações</span>
+            <h1 className="font-display text-4xl font-semibold">Destinos para você</h1>
           </div>
 
+          {destinos.length === 0 ? (
+            <EmptyState
+              icon={MapPin}
+              title="Nenhum destino disponível"
+              description="Ainda não há destinos cadastrados para sugerir. Volte mais tarde para descobrir novas combinações."
+              actionLabel="Refazer quiz"
+              actionTo="/quiz"
+            />
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {destinos.map((dest, i) => (
               <motion.div
@@ -137,6 +147,7 @@ export default function Matches() {
               </motion.div>
             ))}
           </div>
+          )}
         </div>
       </PageTransition>
     </AppLayout>
