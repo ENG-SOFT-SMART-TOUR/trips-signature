@@ -6,9 +6,9 @@ import com.signaturetrips.api.domain.entity.Usuario;
 import com.signaturetrips.api.domain.repository.DestinoRepository;
 import com.signaturetrips.api.domain.repository.RoteiroRepository;
 import com.signaturetrips.api.domain.repository.UsuarioRepository;
-import com.signaturetrips.api.dto.DestinoResponse;
 import com.signaturetrips.api.dto.RoteiroRequest;
 import com.signaturetrips.api.dto.RoteiroResponse;
+import com.signaturetrips.api.service.mapper.RoteiroMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +22,16 @@ public class RoteiroService {
     private final RoteiroRepository roteiroRepository;
     private final UsuarioRepository usuarioRepository;
     private final DestinoRepository destinoRepository;
+    private final RoteiroMapper roteiroMapper;
 
     public RoteiroService(RoteiroRepository roteiroRepository,
                           UsuarioRepository usuarioRepository,
-                          DestinoRepository destinoRepository) {
+                          DestinoRepository destinoRepository,
+                          RoteiroMapper roteiroMapper) {
         this.roteiroRepository = roteiroRepository;
         this.usuarioRepository = usuarioRepository;
         this.destinoRepository = destinoRepository;
+        this.roteiroMapper = roteiroMapper;
     }
 
     @Transactional
@@ -50,14 +53,14 @@ public class RoteiroService {
         roteiro.setDataVolta(request.dataVolta());
 
         Roteiro salvo = roteiroRepository.save(roteiro);
-        return toResponse(salvo, destino);
+        return roteiroMapper.toResponse(salvo);
     }
 
     @Transactional(readOnly = true)
     public RoteiroResponse buscarPorId(Long id) {
         Roteiro roteiro = roteiroRepository.findWithAssociacoesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
-        return toResponse(roteiro, roteiro.getDestino());
+        return roteiroMapper.toResponse(roteiro);
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +68,7 @@ public class RoteiroService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         return roteiroRepository.findByUsuarioOrderByCriadoEmDesc(usuario).stream()
-                .map(r -> toResponse(r, r.getDestino()))
+                .map(roteiroMapper::toResponse)
                 .toList();
     }
 
@@ -79,11 +82,5 @@ public class RoteiroService {
         }
 
         roteiroRepository.delete(roteiro);
-    }
-
-    private RoteiroResponse toResponse(Roteiro r, Destino d) {
-        DestinoResponse destino = new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
-        int totalDias = (int) (r.getDataVolta().toEpochDay() - r.getDataIda().toEpochDay()) + 1;
-        return new RoteiroResponse(r.getId(), destino, r.getDataIda(), r.getDataVolta(), totalDias, r.getCriadoEm());
     }
 }

@@ -7,6 +7,7 @@ import com.signaturetrips.api.domain.repository.DestinoRepository;
 import com.signaturetrips.api.domain.repository.DestinoSalvoRepository;
 import com.signaturetrips.api.domain.repository.UsuarioRepository;
 import com.signaturetrips.api.dto.DestinoResponse;
+import com.signaturetrips.api.service.mapper.DestinoMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +21,22 @@ public class DestinoService {
     private final DestinoRepository destinoRepository;
     private final DestinoSalvoRepository destinoSalvoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final DestinoMapper destinoMapper;
 
     public DestinoService(DestinoRepository destinoRepository,
                           DestinoSalvoRepository destinoSalvoRepository,
-                          UsuarioRepository usuarioRepository) {
+                          UsuarioRepository usuarioRepository,
+                          DestinoMapper destinoMapper) {
         this.destinoRepository = destinoRepository;
         this.destinoSalvoRepository = destinoSalvoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.destinoMapper = destinoMapper;
     }
 
     @Transactional(readOnly = true)
     public List<DestinoResponse> listarTodos() {
         return destinoRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(destinoMapper::toResponse)
                 .toList();
     }
 
@@ -40,7 +44,7 @@ public class DestinoService {
     public List<DestinoResponse> listarSalvos(Long usuarioId) {
         Usuario usuario = buscarUsuario(usuarioId);
         return destinoSalvoRepository.findByUsuario(usuario).stream()
-                .map(ds -> toResponse(ds.getDestino()))
+                .map(destinoSalvo -> destinoMapper.toResponse(destinoSalvo.getDestino()))
                 .toList();
     }
 
@@ -72,9 +76,5 @@ public class DestinoService {
     private Destino buscarDestino(Long id) {
         return destinoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Destino não encontrado"));
-    }
-
-    private DestinoResponse toResponse(Destino d) {
-        return new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
     }
 }
