@@ -24,25 +24,29 @@ export default function EditItinerary() {
 
   useEffect(() => {
     const numId = Number(id);
+    const destinoId = Number(itinerary?.destinationId);
     if (isNaN(numId)) return;
 
-    roteiroApi.buscarPorId(numId)
-      .then(res => {
-        setRoteiro(res.data);
-        return Promise.all([
-          atividadeApi.listarPorDestino(res.data.destino.id),
-          roteiroAtividadeApi.listar(numId),
-        ]);
-      })
-      .then(([atividadesRes, diasRes]) => {
+    // Se destinoId já está no Zustand, dispara as 3 chamadas em paralelo
+    const atividadesPromise = !isNaN(destinoId)
+      ? atividadeApi.listarPorDestino(destinoId)
+      : roteiroApi.buscarPorId(numId).then(r => atividadeApi.listarPorDestino(r.data.destino.id));
+
+    Promise.all([
+      roteiroApi.buscarPorId(numId),
+      atividadesPromise,
+      roteiroAtividadeApi.listar(numId),
+    ])
+      .then(([roteiroRes, atividadesRes, diasRes]) => {
+        setRoteiro(roteiroRes.data);
         setAtividades(atividadesRes.data);
 
+        const actsByDay: Record<number, string[]> = {};
+        for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
+          if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
+          actsByDay[ra.diaNumero].push(String(ra.atividadeId));
+        }
         if (itinerary) {
-          const actsByDay: Record<number, string[]> = {};
-          for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
-            if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
-            actsByDay[ra.diaNumero].push(String(ra.atividadeId));
-          }
           const updatedDays = itinerary.days.map(d => ({
             ...d,
             activityIds: actsByDay[d.dayNumber] ?? [],

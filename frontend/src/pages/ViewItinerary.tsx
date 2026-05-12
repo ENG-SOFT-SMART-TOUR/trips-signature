@@ -42,15 +42,19 @@ export default function ViewItinerary() {
 
     if (isNaN(numId)) { setLoading(false); return; }
 
-    roteiroApi.buscarPorId(numId)
-      .then(res => {
-        setRoteiro(res.data);
-        return Promise.all([
-          atividadeApi.listarPorDestino(res.data.destino.id),
-          roteiroAtividadeApi.listar(numId),
-        ]);
-      })
-      .then(([atividadesRes, diasRes]) => {
+    const destinoId = Number(itinerary?.destinationId);
+
+    const atividadesPromise = !isNaN(destinoId)
+      ? atividadeApi.listarPorDestino(destinoId)
+      : roteiroApi.buscarPorId(numId).then(r => atividadeApi.listarPorDestino(r.data.destino.id));
+
+    Promise.all([
+      roteiroApi.buscarPorId(numId),
+      atividadesPromise,
+      roteiroAtividadeApi.listar(numId),
+    ])
+      .then(([roteiroRes, atividadesRes, diasRes]) => {
+        setRoteiro(roteiroRes.data);
         setAtividades(atividadesRes.data);
         const actsByDay: Record<number, string[]> = {};
         for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
