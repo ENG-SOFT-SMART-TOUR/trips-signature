@@ -34,6 +34,11 @@ export const roteiroApi = {
     api.delete(`/roteiros/${roteiroId}/usuario/${usuarioId}`),
 };
 
+export const atividadeApi = {
+  listarPorDestino: (destinoId: number) =>
+    api.get(`/atividades/destino/${destinoId}`),
+};
+
 export const destinoApi = {
   listar: () => api.get("/destinos"),
 

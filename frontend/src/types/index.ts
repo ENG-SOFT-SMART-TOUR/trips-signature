@@ -35,3 +35,15 @@ export interface Roteiro {
   totalDias: number;
   criadoEm: string;
 }
+
+export interface Atividade {
+  id: number;
+  nome: string;
+  categoria: string;
+  duracao: string;
+  turno: string;
+  descricao: string;
+  foto: string;
+  latitude?: number;
+  longitude?: number;
+}
