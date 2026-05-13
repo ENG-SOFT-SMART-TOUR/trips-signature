@@ -1,33 +1,52 @@
+import { useEffect, useState } from 'react';
 import { useStore } from '@/store/useStore';
-import { destinations, getDestination } from '@/data/mockData';
 import { Link, useNavigate } from 'react-router-dom';
-import { Map, BookOpen, Heart, ArrowRight, Compass, Globe, Calendar, TrendingUp } from 'lucide-react';
+import { Map, BookOpen, Heart, ArrowRight, Compass, Calendar, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
+import { destinoApi } from '@/services/api';
+import type { Destino } from '@/types/index';
 
-const statCard = (icon: React.ReactNode, value: string | number, label: string, delay: number) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay }}
-    className="rounded-xl bg-surface p-6 group hover-lift"
-  >
-    <div className="flex items-center gap-3 mb-3">
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-        {icon}
+interface StatCardProps {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  delay: number;
+}
+
+function StatCard({ icon, value, label, delay }: StatCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      className="rounded-xl bg-surface p-6 group hover-lift"
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+          {icon}
+        </div>
       </div>
-    </div>
-    <p className="font-display text-3xl font-bold text-foreground">{value}</p>
-    <p className="font-body text-xs text-muted-foreground mt-1">{label}</p>
-  </motion.div>
-);
+      <p className="font-display text-3xl font-bold text-foreground">{value}</p>
+      <p className="font-body text-xs text-muted-foreground mt-1">{label}</p>
+    </motion.div>
+  );
+}
 
 export default function Dashboard() {
-  const { user, savedDestinations, itineraries, diaries } = useStore();
+  const { user, itineraries, diaries } = useStore();
   const navigate = useNavigate();
-  const saved = savedDestinations.map(id => destinations.find(d => d.id === id)).filter(Boolean);
+
+  const [savedDestinos, setSavedDestinos] = useState<Destino[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    destinoApi.listarSalvos(user.id)
+      .then(res => setSavedDestinos(res.data))
+      .catch(() => {});
+  }, [user]);
 
   const totalDays = itineraries.reduce((sum, it) => sum + it.days.length, 0);
   const totalEntries = diaries.reduce((sum, d) => sum + d.entries.length, 0);
@@ -48,10 +67,10 @@ export default function Dashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
-            {statCard(<Heart className="h-5 w-5 text-primary" />, savedDestinations.length, 'Saved Destinations', 0.1)}
-            {statCard(<Map className="h-5 w-5 text-primary" />, itineraries.length, 'Itineraries', 0.2)}
-            {statCard(<Calendar className="h-5 w-5 text-primary" />, totalDays, 'Days Planned', 0.3)}
-            {statCard(<BookOpen className="h-5 w-5 text-primary" />, totalEntries, 'Diary Entries', 0.4)}
+            <StatCard icon={<Heart className="h-5 w-5 text-primary" />} value={savedDestinos.length} label="Saved Destinations" delay={0.1} />
+            <StatCard icon={<Map className="h-5 w-5 text-primary" />} value={itineraries.length} label="Itineraries" delay={0.2} />
+            <StatCard icon={<Calendar className="h-5 w-5 text-primary" />} value={totalDays} label="Days Planned" delay={0.3} />
+            <StatCard icon={<BookOpen className="h-5 w-5 text-primary" />} value={totalEntries} label="Diary Entries" delay={0.4} />
           </div>
 
           {/* Quick Actions */}
@@ -95,7 +114,7 @@ export default function Dashboard() {
                 Explore more <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            {saved.length === 0 ? (
+            {savedDestinos.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -110,7 +129,7 @@ export default function Dashboard() {
               </motion.div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {saved.map((dest, i) => dest && (
+                {savedDestinos.map((dest, i) => (
                   <motion.div
                     key={dest.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -120,15 +139,15 @@ export default function Dashboard() {
                   >
                     <div className="relative overflow-hidden rounded-xl aspect-[3/2]">
                       <img
-                        src={dest.image}
-                        alt={dest.name}
+                        src={dest.foto}
+                        alt={dest.nome}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
                       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-foreground/60 to-transparent" />
                       <div className="absolute bottom-4 left-4">
-                        <h3 className="font-display text-lg font-semibold text-primary-foreground">{dest.name}</h3>
-                        <p className="font-body text-xs text-primary-foreground/80">{dest.country}</p>
+                        <h3 className="font-display text-lg font-semibold text-primary-foreground">{dest.nome}</h3>
+                        <p className="font-body text-xs text-primary-foreground/80">{dest.pais}</p>
                       </div>
                     </div>
                     <Button

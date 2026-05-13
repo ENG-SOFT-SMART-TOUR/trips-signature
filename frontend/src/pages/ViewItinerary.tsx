@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, CalendarRange, Clock, Download, Edit, FileText, List, MapPin, Printer } from 'lucide-react';
+import { Calendar, CalendarRange, Download, Edit, FileText, List, MapPin, Printer } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -12,15 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ItineraryMap from '@/components/ItineraryMap';
+import ActivityCard from '@/components/ActivityCard';
 import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
+import { useItineraryDays } from '@/hooks/useItineraryDays';
+import { formatarDia } from '@/lib/dateUtils';
 import type { Roteiro, Atividade } from '@/types/index';
-
-function formatarDia(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('pt-BR', {
-    weekday: 'long', day: '2-digit', month: 'long',
-  });
-}
 
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
@@ -75,19 +70,7 @@ export default function ViewItinerary() {
 
   const getAtividade = (aid: string) => atividades.find(a => String(a.id) === aid);
 
-  const dias = useMemo(() => {
-    if (roteiro) {
-      const dep = new Date(roteiro.dataIda + 'T00:00:00');
-      return Array.from({ length: roteiro.totalDias }, (_, i) => {
-        const date = new Date(dep);
-        date.setDate(date.getDate() + i);
-        const iso = date.toISOString().split('T')[0];
-        const existing = itinerary?.days.find(d => d.date === iso);
-        return { dayNumber: i + 1, date: iso, activityIds: existing?.activityIds ?? [] };
-      });
-    }
-    return itinerary?.days ?? [];
-  }, [roteiro, itinerary]);
+  const dias = useItineraryDays(roteiro, itinerary);
 
   const destNome  = roteiro?.destino.nome  ?? 'Unknown';
   const destPais  = roteiro?.destino.pais  ?? '';
@@ -313,25 +296,7 @@ export default function ViewItinerary() {
                           <div className="px-5 py-4 space-y-3">
                             {acts.map((act, i) => act && (
                               <div key={act.id}>
-                                <div className="flex items-center gap-4 p-3 rounded-lg bg-card">
-                                  {act.foto && (
-                                    <img
-                                      src={act.foto}
-                                      alt={act.nome}
-                                      className="w-14 h-14 rounded-lg object-cover shrink-0"
-                                    />
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <span className="font-body text-sm font-medium block truncate">{act.nome}</span>
-                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                      <Badge variant="secondary" className="text-xs rounded-full">{act.categoria}</Badge>
-                                      <span className="text-xs text-muted-foreground capitalize">{act.turno}</span>
-                                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                                        <Clock className="h-3 w-3" /> {act.duracao}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
+                                <ActivityCard atividade={act} variant="compact" />
                                 {i < acts.length - 1 && (
                                   <div className="flex items-center gap-2 py-1 pl-4">
                                     <div className="h-5 w-px bg-border ml-6" />

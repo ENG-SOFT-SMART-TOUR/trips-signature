@@ -1,21 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Clock, ArrowLeft, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
+import ActivityCard from '@/components/ActivityCard';
 import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
+import { useItineraryDays } from '@/hooks/useItineraryDays';
+import { formatarDia } from '@/lib/dateUtils';
 import type { Roteiro, Atividade } from '@/types/index';
-
-function formatarDia(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('pt-BR', {
-    weekday: 'long', day: '2-digit', month: 'long',
-  });
-}
 
 export default function DayPreview() {
   const { id, dayNumber } = useParams<{ id: string; dayNumber: string }>();
@@ -56,19 +51,7 @@ export default function DayPreview() {
       .catch(() => {});
   }, [id]);
 
-  const dias = useMemo(() => {
-    if (roteiro) {
-      const dep = new Date(roteiro.dataIda + 'T00:00:00');
-      return Array.from({ length: roteiro.totalDias }, (_, i) => {
-        const date = new Date(dep);
-        date.setDate(date.getDate() + i);
-        const iso = date.toISOString().split('T')[0];
-        const existing = itinerary?.days.find(d => d.date === iso);
-        return { dayNumber: i + 1, date: iso, activityIds: existing?.activityIds ?? [] };
-      });
-    }
-    return itinerary?.days ?? [];
-  }, [roteiro, itinerary]);
+  const dias = useItineraryDays(roteiro, itinerary);
 
   const day = dias.find(d => d.dayNumber === dayNum);
   const destNome = roteiro?.destino.nome ?? 'Unknown';
@@ -120,26 +103,7 @@ export default function DayPreview() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
                   >
-                    <div className="rounded-xl overflow-hidden bg-surface border border-border/40">
-                      {act.foto && (
-                        <img
-                          src={act.foto}
-                          alt={act.nome}
-                          className="w-full h-48 object-cover"
-                        />
-                      )}
-                      <div className="p-5">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <Badge variant="secondary" className="rounded-full text-xs">{act.categoria}</Badge>
-                          <span className="text-xs text-muted-foreground capitalize font-body">{act.turno}</span>
-                          <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                            <Clock className="h-3 w-3" /> {act.duracao}
-                          </span>
-                        </div>
-                        <h3 className="font-display text-lg font-semibold mb-1">{act.nome}</h3>
-                        <p className="font-body text-xs text-muted-foreground line-clamp-2">{act.descricao}</p>
-                      </div>
-                    </div>
+                    <ActivityCard atividade={act} variant="full" />
                   </motion.div>
                   {i < acts.length - 1 && (
                     <div className="flex items-center justify-center py-3 gap-3">
