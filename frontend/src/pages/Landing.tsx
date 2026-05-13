@@ -13,19 +13,19 @@ const destinations = [
   { name: 'Marrakech', country: 'Morocco', tag: 'Heritage' },
 ];
 
+const steps = [
+  { icon: Sparkles, title: 'Take the Quiz', desc: 'Tell us about your ideal travel style and preferences.' },
+  { icon: Compass, title: 'Get Matched', desc: 'We pair you with destinations that match your personality.' },
+  { icon: Map, title: 'Plan Your Trip', desc: 'Build a detailed itinerary with curated local experiences.' },
+];
+
+const stats = [
+  { icon: Globe, value: '50+', label: 'Destinations' },
+  { icon: Mountain, value: '200+', label: 'Activities' },
+  { icon: TreePine, value: '1,000+', label: 'Experiences' },
+];
+
 export default function Landing() {
-  const steps = [
-    { icon: Sparkles, title: 'Take the Quiz', desc: 'Tell us about your ideal travel style and preferences.' },
-    { icon: Compass, title: 'Get Matched', desc: 'We pair you with destinations that match your personality.' },
-    { icon: Map, title: 'Plan Your Trip', desc: 'Build a detailed itinerary with curated local experiences.' },
-  ];
-
-  const stats = [
-    { icon: Globe, value: '50+', label: 'Destinations' },
-    { icon: Mountain, value: '200+', label: 'Activities' },
-    { icon: TreePine, value: '1,000+', label: 'Experiences' },
-  ];
-
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
