@@ -32,7 +32,7 @@ public class DestinoService {
     @Transactional(readOnly = true)
     public List<DestinoResponse> listarTodos() {
         return destinoRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(DestinoResponse::from)
                 .toList();
     }
 
@@ -40,7 +40,7 @@ public class DestinoService {
     public List<DestinoResponse> listarSalvos(Long usuarioId) {
         Usuario usuario = buscarUsuario(usuarioId);
         return destinoSalvoRepository.findByUsuario(usuario).stream()
-                .map(ds -> toResponse(ds.getDestino()))
+                .map(ds -> DestinoResponse.from(ds.getDestino()))
                 .toList();
     }
 
@@ -72,9 +72,5 @@ public class DestinoService {
     private Destino buscarDestino(Long id) {
         return destinoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Destino não encontrado"));
-    }
-
-    private DestinoResponse toResponse(Destino d) {
-        return new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
     }
 }

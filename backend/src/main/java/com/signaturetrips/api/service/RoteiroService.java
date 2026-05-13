@@ -82,8 +82,6 @@ public class RoteiroService {
     }
 
     private RoteiroResponse toResponse(Roteiro r, Destino d) {
-        DestinoResponse destino = new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
-        int totalDias = (int) (r.getDataVolta().toEpochDay() - r.getDataIda().toEpochDay()) + 1;
-        return new RoteiroResponse(r.getId(), destino, r.getDataIda(), r.getDataVolta(), totalDias, r.getCriadoEm());
+        return new RoteiroResponse(r.getId(), DestinoResponse.from(d), r.getDataIda(), r.getDataVolta(), r.calcularTotalDias(), r.getCriadoEm());
     }
 }

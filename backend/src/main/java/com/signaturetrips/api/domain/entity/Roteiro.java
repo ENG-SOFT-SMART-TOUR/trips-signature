@@ -37,4 +37,8 @@ public class Roteiro {
 
     @Column(nullable = false)
     private LocalDateTime criadoEm = LocalDateTime.now();
+
+    public int calcularTotalDias() {
+        return (int) (dataVolta.toEpochDay() - dataIda.toEpochDay()) + 1;
+    }
 }
