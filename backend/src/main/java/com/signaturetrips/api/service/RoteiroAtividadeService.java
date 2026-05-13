@@ -46,35 +46,13 @@ public class RoteiroAtividadeService {
 
     @Transactional
     public RoteiroAtividadeResponse adicionar(Long roteiroId, RoteiroAtividadeRequest request) {
-        Roteiro roteiro = roteiroRepository.findWithAssociacoesById(roteiroId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
+        Roteiro roteiro = buscarRoteiro(roteiroId);
+        validarDiaNumero(roteiro, request.diaNumero());
+        validarLimitePorDia(roteiroId, request.diaNumero());
 
-        int totalDias = roteiro.calcularTotalDias();
-        if (request.diaNumero() < 1 || request.diaNumero() > totalDias) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Dia inválido. O roteiro tem " + totalDias + " dias.");
-        }
-
-        int count = roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(roteiroId, request.diaNumero());
-        if (count >= maxAtividadesPorDia) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Máximo de " + maxAtividadesPorDia + " atividades por dia atingido.");
-        }
-
-        Atividade atividade = atividadeRepository.findById(request.atividadeId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
-
-        if (!atividade.getDestino().getId().equals(roteiro.getDestino().getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "A atividade não pertence ao destino do roteiro.");
-        }
-
-        boolean jaExiste = roteiroAtividadeRepository
-                .findByRoteiroIdAndAtividadeIdAndDiaNumero(roteiroId, request.atividadeId(), request.diaNumero())
-                .isPresent();
-        if (jaExiste) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Atividade já adicionada neste dia.");
-        }
+        Atividade atividade = buscarAtividade(request.atividadeId());
+        validarCompatibilidadeComDestino(atividade, roteiro);
+        validarSemDuplicata(roteiroId, request.atividadeId(), request.diaNumero());
 
         RoteiroAtividade ra = new RoteiroAtividade();
         ra.setRoteiro(roteiro);
@@ -91,5 +69,47 @@ public class RoteiroAtividadeService {
                 .findByRoteiroIdAndAtividadeIdAndDiaNumero(roteiroId, atividadeId, diaNumero)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Registro não encontrado"));
         roteiroAtividadeRepository.delete(ra);
+    }
+
+    private Roteiro buscarRoteiro(Long id) {
+        return roteiroRepository.findWithAssociacoesById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
+    }
+
+    private Atividade buscarAtividade(Long id) {
+        return atividadeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+    }
+
+    private void validarDiaNumero(Roteiro roteiro, int diaNumero) {
+        int totalDias = roteiro.calcularTotalDias();
+        if (diaNumero < 1 || diaNumero > totalDias) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Dia inválido. O roteiro tem " + totalDias + " dias.");
+        }
+    }
+
+    private void validarLimitePorDia(Long roteiroId, int diaNumero) {
+        int count = roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(roteiroId, diaNumero);
+        if (count >= maxAtividadesPorDia) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Máximo de " + maxAtividadesPorDia + " atividades por dia atingido.");
+        }
+    }
+
+    private void validarCompatibilidadeComDestino(Atividade atividade, Roteiro roteiro) {
+        if (!atividade.getDestino().getId().equals(roteiro.getDestino().getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "A atividade não pertence ao destino do roteiro.");
+        }
+    }
+
+    private void validarSemDuplicata(Long roteiroId, Long atividadeId, int diaNumero) {
+        boolean jaExiste = roteiroAtividadeRepository
+                .findByRoteiroIdAndAtividadeIdAndDiaNumero(roteiroId, atividadeId, diaNumero)
+                .isPresent();
+        if (jaExiste) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Atividade já adicionada neste dia.");
+        }
     }
 }
