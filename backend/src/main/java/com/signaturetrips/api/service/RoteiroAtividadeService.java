@@ -8,6 +8,7 @@ import com.signaturetrips.api.domain.repository.RoteiroAtividadeRepository;
 import com.signaturetrips.api.domain.repository.RoteiroRepository;
 import com.signaturetrips.api.dto.RoteiroAtividadeRequest;
 import com.signaturetrips.api.dto.RoteiroAtividadeResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,8 @@ import java.util.List;
 @Service
 public class RoteiroAtividadeService {
 
-    private static final int MAX_ATIVIDADES_POR_DIA = 5;
+    @Value("${roteiro.max-atividades-por-dia:5}")
+    private int maxAtividadesPorDia;
 
     private final RoteiroRepository roteiroRepository;
     private final AtividadeRepository atividadeRepository;
@@ -47,16 +49,16 @@ public class RoteiroAtividadeService {
         Roteiro roteiro = roteiroRepository.findWithAssociacoesById(roteiroId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
 
-        int totalDias = (int) (roteiro.getDataVolta().toEpochDay() - roteiro.getDataIda().toEpochDay()) + 1;
+        int totalDias = roteiro.calcularTotalDias();
         if (request.diaNumero() < 1 || request.diaNumero() > totalDias) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Dia inválido. O roteiro tem " + totalDias + " dias.");
         }
 
         int count = roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(roteiroId, request.diaNumero());
-        if (count >= MAX_ATIVIDADES_POR_DIA) {
+        if (count >= maxAtividadesPorDia) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Máximo de " + MAX_ATIVIDADES_POR_DIA + " atividades por dia atingido.");
+                    "Máximo de " + maxAtividadesPorDia + " atividades por dia atingido.");
         }
 
         Atividade atividade = atividadeRepository.findById(request.atividadeId())
