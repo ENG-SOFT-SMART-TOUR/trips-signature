@@ -15,7 +15,7 @@ import type { Roteiro, Atividade } from '@/types/index';
 export default function DayPreview() {
   const { id, dayNumber } = useParams<{ id: string; dayNumber: string }>();
   const navigate = useNavigate();
-  const { itineraries, updateItinerary } = useStore();
+  const { itineraries, updateItinerary, user } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
@@ -24,13 +24,13 @@ export default function DayPreview() {
 
   useEffect(() => {
     const numId = Number(id);
-    if (isNaN(numId)) return;
+    if (isNaN(numId) || !user) return;
     roteiroApi.buscarPorId(numId)
       .then(res => {
         setRoteiro(res.data);
         return Promise.all([
           atividadeApi.listarPorDestino(res.data.destino.id),
-          roteiroAtividadeApi.listar(numId),
+          roteiroAtividadeApi.listar(numId, user.id),
         ]);
       })
       .then(([atividadesRes, diasRes]) => {
@@ -49,7 +49,7 @@ export default function DayPreview() {
         }
       })
       .catch(() => {});
-  }, [id]);
+  }, [id, user]);
 
   const dias = useItineraryDays(roteiro, itinerary);
 

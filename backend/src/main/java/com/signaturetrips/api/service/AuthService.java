@@ -6,7 +6,7 @@ import com.signaturetrips.api.dto.LoginResponse;
 import com.signaturetrips.api.domain.entity.Usuario;
 import com.signaturetrips.api.domain.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,10 +14,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AuthService {
 
-    private final BCryptPasswordEncoder encoder;
+    private final PasswordEncoder encoder;
     private final UsuarioRepository usuarioRepository;
 
-    public AuthService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder encoder) {
+    public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder encoder) {
         this.usuarioRepository = usuarioRepository;
         this.encoder = encoder;
     }

@@ -35,18 +35,18 @@ public class RoteiroAtividadeService {
     }
 
     @Transactional(readOnly = true)
-    public List<RoteiroAtividadeResponse> listar(Long roteiroId) {
-        if (!roteiroRepository.existsById(roteiroId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado");
-        }
+    public List<RoteiroAtividadeResponse> listar(Long roteiroId, Long usuarioId) {
+        Roteiro roteiro = buscarRoteiro(roteiroId);
+        validarPropriedade(roteiro, usuarioId);
         return roteiroAtividadeRepository.findByRoteiroId(roteiroId).stream()
                 .map(ra -> new RoteiroAtividadeResponse(ra.getAtividade().getId(), ra.getDiaNumero()))
                 .toList();
     }
 
     @Transactional
-    public RoteiroAtividadeResponse adicionar(Long roteiroId, RoteiroAtividadeRequest request) {
+    public RoteiroAtividadeResponse adicionar(Long roteiroId, Long usuarioId, RoteiroAtividadeRequest request) {
         Roteiro roteiro = buscarRoteiro(roteiroId);
+        validarPropriedade(roteiro, usuarioId);
         validarDiaNumero(roteiro, request.diaNumero());
         validarLimitePorDia(roteiroId, request.diaNumero());
 
@@ -64,16 +64,26 @@ public class RoteiroAtividadeService {
     }
 
     @Transactional
-    public void remover(Long roteiroId, Long atividadeId, int diaNumero) {
+    public void remover(Long roteiroId, Long usuarioId, Long atividadeId, int diaNumero) {
+        Roteiro roteiro = buscarRoteiro(roteiroId);
+        validarPropriedade(roteiro, usuarioId);
+
         RoteiroAtividade ra = roteiroAtividadeRepository
                 .findByRoteiroIdAndAtividadeIdAndDiaNumero(roteiroId, atividadeId, diaNumero)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Registro não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Atividade não encontrada neste dia do roteiro"));
         roteiroAtividadeRepository.delete(ra);
     }
 
     private Roteiro buscarRoteiro(Long id) {
         return roteiroRepository.findWithAssociacoesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
+    }
+
+    private void validarPropriedade(Roteiro roteiro, Long usuarioId) {
+        if (!roteiro.getUsuario().getId().equals(usuarioId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado");
+        }
     }
 
     private Atividade buscarAtividade(Long id) {
