@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
 import type { Atividade } from '@/types/index';
@@ -5,9 +6,11 @@ import type { Atividade } from '@/types/index';
 interface Props {
   atividade: Atividade;
   variant?: 'compact' | 'full';
+  /** Optional trailing slot (e.g. an add/remove button) — only used by the compact variant. */
+  action?: ReactNode;
 }
 
-export default function ActivityCard({ atividade: act, variant = 'compact' }: Props) {
+export default function ActivityCard({ atividade: act, variant = 'compact', action }: Props) {
   if (variant === 'full') {
     return (
       <div className="rounded-xl overflow-hidden bg-surface border border-border/40">
@@ -44,6 +47,7 @@ export default function ActivityCard({ atividade: act, variant = 'compact' }: Pr
           </span>
         </div>
       </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

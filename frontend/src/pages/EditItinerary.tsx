@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, X, ArrowLeft, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
+import ActivityCard from '@/components/ActivityCard';
 import { atividadeApi, roteiroApi, roteiroAtividadeApi } from '@/services/api';
-import type { Atividade, Roteiro } from '@/types/index';
+import { TURNOS } from '@/types/index';
+import type { Atividade, Roteiro, RoteiroAtividadeResponse, Turno } from '@/types/index';
 import type { ItineraryDay } from '@/store/useStore';
 
 const MAX_ATIVIDADES_POR_DIA = 5;
@@ -26,6 +27,7 @@ export default function EditItinerary() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [turnoFiltro, setTurnoFiltro] = useState<Turno | null>(null);
 
   useEffect(() => {
     const numId = Number(id);
@@ -50,7 +52,7 @@ export default function EditItinerary() {
         setAtividades(atividadesRes.data);
 
         const actsByDay: Record<number, string[]> = {};
-        for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
+        for (const ra of diasRes.data as RoteiroAtividadeResponse[]) {
           if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
           actsByDay[ra.diaNumero].push(String(ra.atividadeId));
         }
@@ -99,6 +101,10 @@ export default function EditItinerary() {
   const dayAtividades = (currentDay?.activityIds
     .map(aid => atividades.find(a => String(a.id) === aid))
     .filter(Boolean) ?? []) as Atividade[];
+
+  const atividadesDisponiveis = turnoFiltro
+    ? atividades.filter(a => a.turno?.toLowerCase() === turnoFiltro)
+    : atividades;
 
   const persistDays = (newDays: ItineraryDay[]) => {
     setDays(newDays);
@@ -185,58 +191,84 @@ export default function EditItinerary() {
                 ) : (
                   <div className="space-y-3">
                     {dayAtividades.map(act => (
-                      <div key={act.id} className="flex items-center justify-between bg-surface rounded-lg p-4">
-                        <div>
-                          <span className="font-body text-sm font-medium">{act.nome}</span>
-                          <div className="flex gap-2 mt-1">
-                            <Badge variant="secondary" className="text-xs rounded-full">{act.categoria}</Badge>
-                            <span className="text-xs text-muted-foreground capitalize">{act.duracao} · {act.turno}</span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Remover ${act.nome}`}
-                          onClick={() => removeActivity(String(act.id))}
-                          className="rounded-full hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <ActivityCard
+                        key={act.id}
+                        atividade={act}
+                        variant="compact"
+                        action={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Remover ${act.nome}`}
+                            onClick={() => removeActivity(String(act.id))}
+                            className="rounded-full hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
                     ))}
                   </div>
                 )}
               </div>
 
               <div>
-                <h3 className="font-display text-lg font-semibold mb-4">Atividades Disponíveis</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {atividades.map(act => {
-                    const isAdded = currentDay?.activityIds.includes(String(act.id));
-                    const isFull = (currentDay?.activityIds.length || 0) >= MAX_ATIVIDADES_POR_DIA;
-                    return (
-                      <div key={act.id} className="flex items-center justify-between bg-card rounded-lg p-4">
-                        <div>
-                          <span className="font-body text-sm font-medium">{act.nome}</span>
-                          <div className="flex gap-2 mt-1">
-                            <Badge variant="secondary" className="text-xs rounded-full">{act.categoria}</Badge>
-                            <span className="text-xs text-muted-foreground capitalize">{act.duracao} · {act.turno}</span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Adicionar ${act.nome}`}
-                          disabled={isAdded || isFull}
-                          onClick={() => addActivity(act)}
-                          className="rounded-full hover:bg-primary/10 hover:text-primary disabled:opacity-30"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    );
-                  })}
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h3 className="font-display text-lg font-semibold">Atividades Disponíveis</h3>
+                  {/* Turno filter */}
+                  <div className="flex gap-1" role="group" aria-label="Filtrar por turno">
+                    <Button
+                      variant={turnoFiltro === null ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setTurnoFiltro(null)}
+                      className="rounded-full text-xs h-7"
+                    >
+                      Todos
+                    </Button>
+                    {TURNOS.map(t => (
+                      <Button
+                        key={t.value}
+                        variant={turnoFiltro === t.value ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setTurnoFiltro(t.value)}
+                        className="rounded-full text-xs h-7"
+                      >
+                        {t.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
+                {atividadesDisponiveis.length === 0 ? (
+                  <p className="text-sm text-muted-foreground font-body">
+                    Nenhuma atividade neste turno.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {atividadesDisponiveis.map(act => {
+                      const isAdded = currentDay?.activityIds.includes(String(act.id));
+                      const isFull = (currentDay?.activityIds.length || 0) >= MAX_ATIVIDADES_POR_DIA;
+                      return (
+                        <ActivityCard
+                          key={act.id}
+                          atividade={act}
+                          variant="compact"
+                          action={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Adicionar ${act.nome}`}
+                              disabled={isAdded || isFull}
+                              onClick={() => addActivity(act)}
+                              className="rounded-full hover:bg-primary/10 hover:text-primary disabled:opacity-30"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
