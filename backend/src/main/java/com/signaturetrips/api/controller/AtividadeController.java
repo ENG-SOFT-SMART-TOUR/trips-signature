@@ -18,7 +18,9 @@ public class AtividadeController {
     }
 
     @GetMapping("/destino/{destinoId}")
-    public ResponseEntity<List<AtividadeResponse>> listarPorDestino(@PathVariable Long destinoId) {
-        return ResponseEntity.ok(atividadeService.listarPorDestino(destinoId));
+    public ResponseEntity<List<AtividadeResponse>> listarPorDestino(
+            @PathVariable Long destinoId,
+            @RequestParam(required = false) String turno) {
+        return ResponseEntity.ok(atividadeService.listarPorDestino(destinoId, turno));
     }
 }

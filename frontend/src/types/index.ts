@@ -47,3 +47,16 @@ export interface Atividade {
   latitude?: number;
   longitude?: number;
 }
+
+export interface RoteiroAtividadeResponse {
+  atividadeId: number;
+  diaNumero: number;
+}
+
+export type Turno = 'morning' | 'afternoon' | 'evening';
+
+export const TURNOS: { value: Turno; label: string }[] = [
+  { value: 'morning', label: 'Manhã' },
+  { value: 'afternoon', label: 'Tarde' },
+  { value: 'evening', label: 'Noite' },
+];
