@@ -65,7 +65,7 @@ export default function DayPreview() {
   if (!day && !itinerary) {
     return (
       <AppLayout>
-        <div className="p-12 text-center text-muted-foreground font-body">Not found.</div>
+        <div className="p-12 text-center text-muted-foreground font-body">Não encontrado.</div>
       </AppLayout>
     );
   }
@@ -77,11 +77,11 @@ export default function DayPreview() {
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <Button variant="ghost" onClick={() => navigate(`/itinerary/${id}`)} className="rounded-full">
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
             </Button>
             <div>
               <h1 className="font-display text-2xl font-semibold capitalize">
-                {day ? formatarDia(day.date) : `Day ${dayNum}`}
+                {day ? formatarDia(day.date) : `Dia ${dayNum}`}
               </h1>
               <p className="font-body text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                 <MapPin className="h-3 w-3" /> {destNome}{destPais ? `, ${destPais}` : ''}
@@ -93,7 +93,7 @@ export default function DayPreview() {
           <div className="space-y-4">
             {acts.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground text-sm font-body">
-                No activities planned for this day.
+                Nenhuma atividade planejada para este dia.
               </div>
             ) : (
               acts.map((act, i) => (
@@ -108,7 +108,7 @@ export default function DayPreview() {
                   {i < acts.length - 1 && (
                     <div className="flex items-center justify-center py-3 gap-3">
                       <div className="h-6 w-px bg-border" />
-                      <span className="text-xs text-muted-foreground font-body">~15 min travel</span>
+                      <span className="text-xs text-muted-foreground font-body">~15 min de deslocamento</span>
                       <div className="h-6 w-px bg-border" />
                     </div>
                   )}
@@ -125,7 +125,7 @@ export default function DayPreview() {
               onClick={() => navigate(`/itinerary/${id}/day/${dayNum - 1}`)}
               className="rounded-full"
             >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Day {dayNum - 1}
+              <ChevronLeft className="h-4 w-4 mr-1" /> Dia {dayNum - 1}
             </Button>
             <Button
               variant="ghost"
@@ -133,7 +133,7 @@ export default function DayPreview() {
               onClick={() => navigate(`/itinerary/${id}/day/${dayNum + 1}`)}
               className="rounded-full"
             >
-              Day {dayNum + 1} <ChevronRight className="h-4 w-4 ml-1" />
+              Dia {dayNum + 1} <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>

@@ -72,7 +72,7 @@ export default function ViewItinerary() {
 
   const dias = useItineraryDays(roteiro, itinerary);
 
-  const destNome  = roteiro?.destino.nome  ?? 'Unknown';
+  const destNome  = roteiro?.destino.nome  ?? 'Desconhecido';
   const destPais  = roteiro?.destino.pais  ?? '';
   const destFoto  = roteiro?.destino.foto  ?? '';
   const dataIda   = roteiro?.dataIda   ?? itinerary?.departureDate ?? '';
@@ -85,14 +85,14 @@ export default function ViewItinerary() {
 
   const fullExportText = [
     `${destNome} — ${destPais}`,
-    `${dataIda} → ${dataVolta} · ${dias.length} ${dias.length === 1 ? 'day' : 'days'}`,
+    `${dataIda} → ${dataVolta} · ${dias.length} ${dias.length === 1 ? 'dia' : 'dias'}`,
     '',
     ...dias.map(day => {
       const acts = day.activityIds.map(aid => getAtividade(aid)).filter(Boolean);
-      const header = `Day ${day.dayNumber} — ${day.date}`;
+      const header = `Dia ${day.dayNumber} — ${day.date}`;
       const lines = acts.length > 0
         ? acts.map(a => `  • ${a!.nome} (${a!.turno}, ${a!.duracao})`)
-        : ['  No activities planned'];
+        : ['  Nenhuma atividade planejada'];
       return [header, ...lines].join('\n');
     }),
   ].join('\n\n');
@@ -112,10 +112,10 @@ export default function ViewItinerary() {
       const acts = day.activityIds.map(aid => getAtividade(aid)).filter(Boolean);
       const actsHtml = acts.length > 0
         ? acts.map(a => `<li><strong>${a!.nome}</strong> &mdash; ${a!.turno}, ${a!.duracao}</li>`).join('')
-        : '<li style="color:#888">No activities planned</li>';
+        : '<li style="color:#888">Nenhuma atividade planejada</li>';
       return `
         <div class="day">
-          <h3>Day ${day.dayNumber} <span class="date">${day.date}</span></h3>
+          <h3>Dia ${day.dayNumber} <span class="date">${day.date}</span></h3>
           <ul>${actsHtml}</ul>
         </div>`;
     }).join('');
@@ -123,7 +123,7 @@ export default function ViewItinerary() {
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(`<!DOCTYPE html><html><head>
-      <title>${destNome} — Itinerary</title>
+      <title>${destNome} — Roteiro</title>
       <style>
         body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #1a1a1a; }
         h1 { font-size: 28px; margin-bottom: 4px; }
@@ -137,7 +137,7 @@ export default function ViewItinerary() {
       </style>
     </head><body>
       <h1>${destNome}</h1>
-      <p class="subtitle">${destPais} &nbsp;·&nbsp; ${dataIda} → ${dataVolta} &nbsp;·&nbsp; ${dias.length} days</p>
+      <p class="subtitle">${destPais} &nbsp;·&nbsp; ${dataIda} → ${dataVolta} &nbsp;·&nbsp; ${dias.length} ${dias.length === 1 ? 'dia' : 'dias'}</p>
       ${diasHtml}
     </body></html>`);
     win.document.close();
@@ -162,7 +162,7 @@ export default function ViewItinerary() {
   if (!roteiro && !itinerary) {
     return (
       <AppLayout>
-        <div className="p-12 text-center text-muted-foreground font-body">Itinerary not found.</div>
+        <div className="p-12 text-center text-muted-foreground font-body">Roteiro não encontrado.</div>
       </AppLayout>
     );
   }
@@ -192,7 +192,7 @@ export default function ViewItinerary() {
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
                 <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-1 block">
-                  {roteiro?.destino.categoria ?? 'Trip'}
+                  {roteiro?.destino.categoria ?? 'Viagem'}
                 </span>
                 <h2 className="font-display text-2xl font-semibold">{destNome}</h2>
                 <p className="font-body text-sm text-muted-foreground flex items-center gap-1 mt-1">
@@ -201,10 +201,10 @@ export default function ViewItinerary() {
               </div>
               <div className="flex gap-2 shrink-0">
                 <Button variant="ghost" size="sm" onClick={() => navigate(`/itinerary/${id}/edit`)} className="rounded-full text-sm">
-                  <Edit className="h-4 w-4 mr-1" /> Edit
+                  <Edit className="h-4 w-4 mr-1" /> Editar
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setExportOpen(true)} className="rounded-full text-sm">
-                  <FileText className="h-4 w-4 mr-1" /> Export
+                  <FileText className="h-4 w-4 mr-1" /> Exportar
                 </Button>
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function ViewItinerary() {
               <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <CalendarRange className="h-4 w-4" />
-                  <span className="font-body text-xs uppercase tracking-wide">Period</span>
+                  <span className="font-body text-xs uppercase tracking-wide">Período</span>
                 </div>
                 <span className="font-display text-base font-semibold">{dataIda}</span>
                 <span className="font-body text-xs text-muted-foreground">→ {dataVolta}</span>
@@ -222,22 +222,22 @@ export default function ViewItinerary() {
               <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Calendar className="h-4 w-4" />
-                  <span className="font-body text-xs uppercase tracking-wide">Duration</span>
+                  <span className="font-body text-xs uppercase tracking-wide">Duração</span>
                 </div>
                 <span className="font-display text-3xl font-semibold leading-none">{dias.length}</span>
                 <span className="font-body text-xs text-muted-foreground">
-                  {dias.length === 1 ? 'day' : 'days'}
+                  {dias.length === 1 ? 'dia' : 'dias'}
                 </span>
               </div>
 
               <div className="rounded-xl bg-background p-4 flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <List className="h-4 w-4" />
-                  <span className="font-body text-xs uppercase tracking-wide">Activities</span>
+                  <span className="font-body text-xs uppercase tracking-wide">Atividades</span>
                 </div>
                 <span className="font-display text-3xl font-semibold leading-none">{totalAtividades}</span>
                 <span className="font-body text-xs text-muted-foreground">
-                  {totalAtividades === 1 ? 'activity' : 'activities'}
+                  {totalAtividades === 1 ? 'atividade' : 'atividades'}
                 </span>
               </div>
             </div>
@@ -245,8 +245,8 @@ export default function ViewItinerary() {
 
           <Tabs defaultValue="list" className="w-full">
             <TabsList className="bg-surface rounded-full p-1 mb-8">
-              <TabsTrigger value="list" className="rounded-full text-sm font-body">List View</TabsTrigger>
-              <TabsTrigger value="map" className="rounded-full text-sm font-body">Map View</TabsTrigger>
+              <TabsTrigger value="list" className="rounded-full text-sm font-body">Lista</TabsTrigger>
+              <TabsTrigger value="map" className="rounded-full text-sm font-body">Mapa</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list" className="space-y-3">
@@ -268,7 +268,7 @@ export default function ViewItinerary() {
                             {formatarDia(day.date)}
                           </span>
                           <span className="font-body text-xs text-muted-foreground ml-2">
-                            {acts.length > 0 ? `${acts.length} activit${acts.length === 1 ? 'y' : 'ies'}` : 'No activities'}
+                            {acts.length > 0 ? `${acts.length} ${acts.length === 1 ? 'atividade' : 'atividades'}` : 'Sem atividades'}
                           </span>
                         </div>
                       </div>
@@ -277,7 +277,7 @@ export default function ViewItinerary() {
                         onClick={e => e.stopPropagation()}
                         className="text-xs text-primary font-body hover:underline shrink-0"
                       >
-                        Details →
+                        Detalhes →
                       </Link>
                     </button>
 
@@ -290,7 +290,7 @@ export default function ViewItinerary() {
                       >
                         {acts.length === 0 ? (
                           <p className="px-5 py-4 text-sm text-muted-foreground font-body">
-                            No activities planned for this day.
+                            Nenhuma atividade planejada para este dia.
                           </p>
                         ) : (
                           <div className="px-5 py-4 space-y-3">
@@ -300,7 +300,7 @@ export default function ViewItinerary() {
                                 {i < acts.length - 1 && (
                                   <div className="flex items-center gap-2 py-1 pl-4">
                                     <div className="h-5 w-px bg-border ml-6" />
-                                    <span className="text-xs text-muted-foreground font-body">~15 min travel</span>
+                                    <span className="text-xs text-muted-foreground font-body">~15 min de deslocamento</span>
                                   </div>
                                 )}
                               </div>
@@ -324,7 +324,7 @@ export default function ViewItinerary() {
         <Dialog open={exportOpen} onOpenChange={setExportOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="font-display">Export Itinerary</DialogTitle>
+              <DialogTitle className="font-display">Exportar roteiro</DialogTitle>
             </DialogHeader>
             <pre className="text-xs font-body whitespace-pre-wrap bg-surface rounded-lg p-4 max-h-72 overflow-y-auto">
               {fullExportText}
@@ -332,23 +332,23 @@ export default function ViewItinerary() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => { navigator.clipboard.writeText(fullExportText); toast.success('Copied to clipboard!'); }}
+                onClick={() => { navigator.clipboard.writeText(fullExportText); toast.success('Copiado para a área de transferência!'); }}
                 className="flex-1 rounded-full"
               >
-                <FileText className="h-4 w-4 mr-2" /> Copy
+                <FileText className="h-4 w-4 mr-2" /> Copiar
               </Button>
               <Button
                 variant="outline"
                 onClick={handleDownload}
                 className="flex-1 rounded-full"
               >
-                <Download className="h-4 w-4 mr-2" /> Download .txt
+                <Download className="h-4 w-4 mr-2" /> Baixar .txt
               </Button>
               <Button
                 onClick={handlePrint}
                 className="flex-1 rounded-full bg-primary text-primary-foreground"
               >
-                <Printer className="h-4 w-4 mr-2" /> Print
+                <Printer className="h-4 w-4 mr-2" /> Imprimir
               </Button>
             </div>
           </DialogContent>

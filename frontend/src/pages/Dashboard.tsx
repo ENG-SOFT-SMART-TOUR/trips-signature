@@ -61,16 +61,16 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-10"
           >
-            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Welcome back</span>
-            <h1 className="font-display text-4xl font-semibold">{user?.name || 'Traveler'}</h1>
+            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Bem-vindo de volta</span>
+            <h1 className="font-display text-4xl font-semibold">{user?.name || 'Viajante'}</h1>
           </motion.div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
-            <StatCard icon={<Heart className="h-5 w-5 text-primary" />} value={savedDestinos.length} label="Saved Destinations" delay={0.1} />
-            <StatCard icon={<Map className="h-5 w-5 text-primary" />} value={itineraries.length} label="Itineraries" delay={0.2} />
-            <StatCard icon={<Calendar className="h-5 w-5 text-primary" />} value={totalDays} label="Days Planned" delay={0.3} />
-            <StatCard icon={<BookOpen className="h-5 w-5 text-primary" />} value={totalEntries} label="Diary Entries" delay={0.4} />
+            <StatCard icon={<Heart className="h-5 w-5 text-primary" />} value={savedDestinos.length} label="Destinos salvos" delay={0.1} />
+            <StatCard icon={<Map className="h-5 w-5 text-primary" />} value={itineraries.length} label="Roteiros" delay={0.2} />
+            <StatCard icon={<Calendar className="h-5 w-5 text-primary" />} value={totalDays} label="Dias planejados" delay={0.3} />
+            <StatCard icon={<BookOpen className="h-5 w-5 text-primary" />} value={totalEntries} label="Entradas no diário" delay={0.4} />
           </div>
 
           {/* Quick Actions */}
@@ -85,33 +85,33 @@ export default function Dashboard() {
               className="group rounded-xl bg-primary/5 p-6 text-left transition-all duration-300 hover:bg-primary/10 hover-lift"
             >
               <Compass className="h-6 w-6 text-primary mb-3 transition-transform duration-300 group-hover:rotate-45" />
-              <h3 className="font-display text-lg font-semibold mb-1">Explore Matches</h3>
-              <p className="font-body text-xs text-muted-foreground">Discover destinations tailored to your style</p>
+              <h3 className="font-display text-lg font-semibold mb-1">Explorar combinações</h3>
+              <p className="font-body text-xs text-muted-foreground">Descubra destinos sob medida para o seu estilo</p>
             </button>
             <button
               onClick={() => navigate('/itinerary/new')}
               className="group rounded-xl bg-primary/5 p-6 text-left transition-all duration-300 hover:bg-primary/10 hover-lift"
             >
               <Map className="h-6 w-6 text-primary mb-3 transition-transform duration-300 group-hover:scale-110" />
-              <h3 className="font-display text-lg font-semibold mb-1">Plan a Trip</h3>
-              <p className="font-body text-xs text-muted-foreground">Create a new itinerary for your next adventure</p>
+              <h3 className="font-display text-lg font-semibold mb-1">Planejar viagem</h3>
+              <p className="font-body text-xs text-muted-foreground">Crie um novo roteiro para a sua próxima aventura</p>
             </button>
             <button
               onClick={() => navigate('/itineraries')}
               className="group rounded-xl bg-primary/5 p-6 text-left transition-all duration-300 hover:bg-primary/10 hover-lift"
             >
               <TrendingUp className="h-6 w-6 text-primary mb-3 transition-transform duration-300 group-hover:translate-y-[-2px]" />
-              <h3 className="font-display text-lg font-semibold mb-1">My Trips</h3>
-              <p className="font-body text-xs text-muted-foreground">View your itineraries and diaries</p>
+              <h3 className="font-display text-lg font-semibold mb-1">Minhas viagens</h3>
+              <p className="font-body text-xs text-muted-foreground">Veja seus roteiros e diários</p>
             </button>
           </motion.div>
 
           {/* Saved Destinations */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-2xl font-semibold">Saved Destinations</h2>
+              <h2 className="font-display text-2xl font-semibold">Destinos salvos</h2>
               <Link to="/matches" className="text-sm text-primary font-body hover:underline flex items-center gap-1">
-                Explore more <ArrowRight className="h-3 w-3" />
+                Explorar mais <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
             {savedDestinos.length === 0 ? (
@@ -121,10 +121,10 @@ export default function Dashboard() {
                 className="rounded-xl bg-surface p-10 text-center"
               >
                 <Heart className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
-                <h3 className="font-display text-lg font-semibold mb-1">No saved destinations yet</h3>
-                <p className="font-body text-sm text-muted-foreground mb-4">Explore our curated matches and save the ones that speak to you.</p>
+                <h3 className="font-display text-lg font-semibold mb-1">Nenhum destino salvo ainda</h3>
+                <p className="font-body text-sm text-muted-foreground mb-4">Explore nossas combinações e salve as que mais combinam com você.</p>
                 <Button onClick={() => navigate('/matches')} className="rounded-full">
-                  Find Destinations
+                  Encontrar destinos
                 </Button>
               </motion.div>
             ) : (
@@ -155,7 +155,7 @@ export default function Dashboard() {
                       variant="ghost"
                       className="rounded-full mt-3 text-sm w-full hover:bg-primary/10 hover:text-primary"
                     >
-                      Plan Trip <ArrowRight className="h-3 w-3 ml-1" />
+                      Planejar viagem <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                   </motion.div>
                 ))}

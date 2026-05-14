@@ -28,11 +28,11 @@ export default function Itineraries() {
   }, [user]);
 
   const handleDeletar = async (roteiro: Roteiro) => {
-    if (!user || !confirm('Delete this itinerary?')) return;
+    if (!user || !confirm('Excluir este roteiro?')) return;
     try {
       await roteiroApi.deletar(roteiro.id, user.id);
       setRoteiros(prev => prev.filter(r => r.id !== roteiro.id));
-      toast('Itinerary deleted');
+      toast('Roteiro excluído');
     } catch {
       toast.error('Erro ao deletar roteiro');
     }
@@ -44,25 +44,25 @@ export default function Itineraries() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Your trips</span>
-              <h1 className="font-display text-4xl font-semibold">My Itineraries</h1>
+              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Suas viagens</span>
+              <h1 className="font-display text-4xl font-semibold">Meus Roteiros</h1>
             </div>
             <Button
               onClick={() => navigate('/itinerary/new')}
               className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Plus className="h-4 w-4 mr-2" /> New Itinerary
+              <Plus className="h-4 w-4 mr-2" /> Novo Roteiro
             </Button>
           </div>
 
           {loading ? (
-            <p className="font-body text-sm text-muted-foreground">Loading itineraries...</p>
+            <p className="font-body text-sm text-muted-foreground">Carregando roteiros...</p>
           ) : roteiros.length === 0 ? (
             <EmptyState
               icon={Map}
-              title="No itineraries yet"
-              description="Create your first itinerary and start planning your dream trip."
-              actionLabel="Create Itinerary"
+              title="Nenhum roteiro ainda"
+              description="Crie seu primeiro roteiro e comece a planejar a viagem dos seus sonhos."
+              actionLabel="Criar Roteiro"
               actionTo="/itinerary/new"
             />
           ) : (
@@ -82,7 +82,7 @@ export default function Itineraries() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-body text-xs text-muted-foreground bg-background px-3 py-1 rounded-full">
-                            {roteiro.totalDias} days
+                            {roteiro.totalDias} {roteiro.totalDias === 1 ? 'dia' : 'dias'}
                           </span>
                           <button
                             onClick={(e) => { e.preventDefault(); handleDeletar(roteiro); }}
@@ -99,7 +99,7 @@ export default function Itineraries() {
                         {roteiro.dataIda} → {roteiro.dataVolta}
                       </p>
                       <span className="font-body text-xs text-primary group-hover:underline flex items-center gap-1">
-                        View itinerary <ArrowRight className="h-3 w-3" />
+                        Ver roteiro <ArrowRight className="h-3 w-3" />
                       </span>
                     </div>
                   </Link>
