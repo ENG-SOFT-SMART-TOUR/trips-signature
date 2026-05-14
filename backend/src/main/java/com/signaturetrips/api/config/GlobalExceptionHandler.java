@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("status", ex.getStatusCode().value());
-        body.put("error", ex.getReason());
+        body.put("message", ex.getReason());
 
         return ResponseEntity.status(ex.getStatusCode()).body(body);
     }
