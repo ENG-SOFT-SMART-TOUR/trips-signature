@@ -75,7 +75,7 @@ class RoteiroAtividadeServiceTest {
 
     @Test
     void adicionarRejeitaUsuarioQueNaoEhDono() {
-        when(roteiroRepository.findWithAssociacoesById(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
+        when(roteiroRepository.findByIdForUpdate(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
 
         RoteiroAtividadeRequest request = new RoteiroAtividadeRequest(100L, 1);
 
@@ -104,7 +104,7 @@ class RoteiroAtividadeServiceTest {
 
     @Test
     void adicionarBloqueiaSextaAtividadeNoDia() {
-        when(roteiroRepository.findWithAssociacoesById(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
+        when(roteiroRepository.findByIdForUpdate(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
         when(roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(ROTEIRO_ID, 1)).thenReturn(5);
 
         RoteiroAtividadeRequest request = new RoteiroAtividadeRequest(100L, 1);
@@ -116,7 +116,7 @@ class RoteiroAtividadeServiceTest {
 
     @Test
     void adicionarRejeitaDiaForaDoIntervalo() {
-        when(roteiroRepository.findWithAssociacoesById(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
+        when(roteiroRepository.findByIdForUpdate(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
 
         RoteiroAtividadeRequest request = new RoteiroAtividadeRequest(100L, 99);
 
@@ -127,7 +127,7 @@ class RoteiroAtividadeServiceTest {
 
     @Test
     void adicionarRejeitaAtividadeDuplicadaNoMesmoDia() {
-        when(roteiroRepository.findWithAssociacoesById(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
+        when(roteiroRepository.findByIdForUpdate(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
         when(roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(ROTEIRO_ID, 1)).thenReturn(2);
         when(atividadeRepository.findById(100L)).thenReturn(Optional.of(atividade));
         when(roteiroAtividadeRepository.findByRoteiroIdAndAtividadeIdAndDiaNumero(ROTEIRO_ID, 100L, 1))
@@ -142,7 +142,7 @@ class RoteiroAtividadeServiceTest {
 
     @Test
     void adicionarSucedeNoCaminhoFeliz() {
-        when(roteiroRepository.findWithAssociacoesById(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
+        when(roteiroRepository.findByIdForUpdate(ROTEIRO_ID)).thenReturn(Optional.of(roteiro));
         when(roteiroAtividadeRepository.countByRoteiroIdAndDiaNumero(ROTEIRO_ID, 1)).thenReturn(0);
         when(atividadeRepository.findById(100L)).thenReturn(Optional.of(atividade));
         when(roteiroAtividadeRepository.findByRoteiroIdAndAtividadeIdAndDiaNumero(ROTEIRO_ID, 100L, 1))

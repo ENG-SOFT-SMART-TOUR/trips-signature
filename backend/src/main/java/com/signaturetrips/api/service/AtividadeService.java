@@ -23,11 +23,14 @@ public class AtividadeService {
     }
 
     @Transactional(readOnly = true)
-    public List<AtividadeResponse> listarPorDestino(Long destinoId) {
+    public List<AtividadeResponse> listarPorDestino(Long destinoId, String turno) {
         if (!destinoRepository.existsById(destinoId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Destino não encontrado");
         }
-        return atividadeRepository.findByDestinoId(destinoId).stream()
+        List<Atividade> atividades = (turno == null || turno.isBlank())
+                ? atividadeRepository.findByDestinoId(destinoId)
+                : atividadeRepository.findByDestinoIdAndTurnoIgnoreCase(destinoId, turno.trim());
+        return atividades.stream()
                 .map(this::toResponse)
                 .toList();
     }

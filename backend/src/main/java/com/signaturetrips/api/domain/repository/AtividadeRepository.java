@@ -8,4 +8,6 @@ import java.util.List;
 public interface AtividadeRepository extends JpaRepository<Atividade, Long> {
 
     List<Atividade> findByDestinoId(Long destinoId);
+
+    List<Atividade> findByDestinoIdAndTurnoIgnoreCase(Long destinoId, String turno);
 }

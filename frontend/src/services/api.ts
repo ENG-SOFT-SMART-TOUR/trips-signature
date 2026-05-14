@@ -35,8 +35,8 @@ export const roteiroApi = {
 };
 
 export const atividadeApi = {
-  listarPorDestino: (destinoId: number) =>
-    api.get(`/atividades/destino/${destinoId}`),
+  listarPorDestino: (destinoId: number, turno?: string) =>
+    api.get(`/atividades/destino/${destinoId}`, { params: turno ? { turno } : {} }),
 };
 
 export const roteiroAtividadeApi = {
