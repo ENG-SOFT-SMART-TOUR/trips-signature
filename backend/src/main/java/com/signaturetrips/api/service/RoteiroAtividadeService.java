@@ -45,7 +45,10 @@ public class RoteiroAtividadeService {
 
     @Transactional
     public RoteiroAtividadeResponse adicionar(Long roteiroId, Long usuarioId, RoteiroAtividadeRequest request) {
-        Roteiro roteiro = buscarRoteiro(roteiroId);
+        // pessimistic lock: serialises concurrent inserts on the same roteiro
+        // so the per-day limit and duplicate checks below cannot be raced
+        Roteiro roteiro = roteiroRepository.findByIdForUpdate(roteiroId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
         validarPropriedade(roteiro, usuarioId);
         validarDiaNumero(roteiro, request.diaNumero());
         validarLimitePorDia(roteiroId, request.diaNumero());
