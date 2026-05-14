@@ -20,7 +20,7 @@ import type { Roteiro, Atividade } from '@/types/index';
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { itineraries, updateItinerary } = useStore();
+  const { itineraries, updateItinerary, user } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
@@ -35,7 +35,7 @@ export default function ViewItinerary() {
 
     if (itinerary) setLoading(false);
 
-    if (isNaN(numId)) { setLoading(false); return; }
+    if (isNaN(numId) || !user) { setLoading(false); return; }
 
     const destinoId = Number(itinerary?.destinationId);
 
@@ -46,7 +46,7 @@ export default function ViewItinerary() {
     Promise.all([
       roteiroApi.buscarPorId(numId),
       atividadesPromise,
-      roteiroAtividadeApi.listar(numId),
+      roteiroAtividadeApi.listar(numId, user.id),
     ])
       .then(([roteiroRes, atividadesRes, diasRes]) => {
         setRoteiro(roteiroRes.data);
@@ -64,9 +64,9 @@ export default function ViewItinerary() {
           updateItinerary(itinerary.id, updatedDays);
         }
       })
-      .catch(() => {})
+      .catch(() => toast.error('Erro ao carregar o roteiro'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, user]);
 
   const getAtividade = (aid: string) => atividades.find(a => String(a.id) === aid);
 

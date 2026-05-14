@@ -47,23 +47,27 @@ public class RoteiroController {
     }
 
     @GetMapping("/{id}/atividades")
-    public ResponseEntity<List<RoteiroAtividadeResponse>> listarAtividades(@PathVariable Long id) {
-        return ResponseEntity.ok(roteiroAtividadeService.listar(id));
+    public ResponseEntity<List<RoteiroAtividadeResponse>> listarAtividades(
+            @PathVariable Long id,
+            @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(roteiroAtividadeService.listar(id, usuarioId));
     }
 
     @PostMapping("/{id}/atividades")
     public ResponseEntity<RoteiroAtividadeResponse> adicionarAtividade(
             @PathVariable Long id,
+            @RequestParam Long usuarioId,
             @Valid @RequestBody RoteiroAtividadeRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(roteiroAtividadeService.adicionar(id, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(roteiroAtividadeService.adicionar(id, usuarioId, request));
     }
 
     @DeleteMapping("/{id}/atividades/{atividadeId}/dia/{diaNumero}")
     public ResponseEntity<Void> removerAtividade(
             @PathVariable Long id,
+            @RequestParam Long usuarioId,
             @PathVariable Long atividadeId,
             @PathVariable int diaNumero) {
-        roteiroAtividadeService.remover(id, atividadeId, diaNumero);
+        roteiroAtividadeService.remover(id, usuarioId, atividadeId, diaNumero);
         return ResponseEntity.noContent().build();
     }
 }

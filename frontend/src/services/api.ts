@@ -40,14 +40,14 @@ export const atividadeApi = {
 };
 
 export const roteiroAtividadeApi = {
-  listar: (roteiroId: number) =>
-    api.get(`/roteiros/${roteiroId}/atividades`),
+  listar: (roteiroId: number, usuarioId: number) =>
+    api.get(`/roteiros/${roteiroId}/atividades`, { params: { usuarioId } }),
 
-  adicionar: (roteiroId: number, atividadeId: number, diaNumero: number) =>
-    api.post(`/roteiros/${roteiroId}/atividades`, { atividadeId, diaNumero }),
+  adicionar: (roteiroId: number, usuarioId: number, atividadeId: number, diaNumero: number) =>
+    api.post(`/roteiros/${roteiroId}/atividades`, { atividadeId, diaNumero }, { params: { usuarioId } }),
 
-  remover: (roteiroId: number, atividadeId: number, diaNumero: number) =>
-    api.delete(`/roteiros/${roteiroId}/atividades/${atividadeId}/dia/${diaNumero}`),
+  remover: (roteiroId: number, usuarioId: number, atividadeId: number, diaNumero: number) =>
+    api.delete(`/roteiros/${roteiroId}/atividades/${atividadeId}/dia/${diaNumero}`, { params: { usuarioId } }),
 };
 
 export const destinoApi = {
