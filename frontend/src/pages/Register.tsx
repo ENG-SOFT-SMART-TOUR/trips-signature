@@ -18,10 +18,10 @@ export default function Register() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Name is required';
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email is required';
-    if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
-    if (form.password !== form.confirm) e.confirm = 'Passwords do not match';
+    if (!form.name.trim()) e.name = 'Nome é obrigatório';
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'E-mail válido é obrigatório';
+    if (form.password.length < 6) e.password = 'A senha deve ter pelo menos 6 caracteres';
+    if (form.password !== form.confirm) e.confirm = 'As senhas não coincidem';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -38,13 +38,13 @@ export default function Register() {
         senha: form.password,
       });
       login(data.email, data.nome, data.id, data.quizCompleto);
-      toast.success('Welcome aboard! Let\'s discover your travel style.');
+      toast.success('Bem-vindo! Vamos descobrir seu estilo de viagem.');
       navigate('/quiz');
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       const msg = status === 409
-        ? 'This email is already registered'
-        : 'Registration failed. Please try again.';
+        ? 'Este e-mail já está cadastrado'
+        : 'Falha no cadastro. Tente novamente.';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -60,16 +60,16 @@ export default function Register() {
               <Compass className="h-6 w-6 text-primary" />
               <span className="font-display text-xl font-semibold">Signature Trips</span>
             </Link>
-            <h1 className="font-display text-3xl font-semibold mb-2">Create your account</h1>
-            <p className="text-sm text-muted-foreground font-body">Start your journey with personalized destinations</p>
+            <h1 className="font-display text-3xl font-semibold mb-2">Crie sua conta</h1>
+            <p className="text-sm text-muted-foreground font-body">Comece sua jornada com destinos personalizados</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {[
-              { key: 'name', label: 'Full Name', type: 'text', placeholder: 'John Doe' },
-              { key: 'email', label: 'Email', type: 'email', placeholder: 'john@example.com' },
-              { key: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
-              { key: 'confirm', label: 'Confirm Password', type: 'password', placeholder: '••••••••' },
+              { key: 'name', label: 'Nome completo', type: 'text', placeholder: 'João Silva' },
+              { key: 'email', label: 'E-mail', type: 'email', placeholder: 'joao@exemplo.com' },
+              { key: 'password', label: 'Senha', type: 'password', placeholder: '••••••••' },
+              { key: 'confirm', label: 'Confirmar senha', type: 'password', placeholder: '••••••••' },
             ].map(field => (
               <div key={field.key} className="space-y-1.5">
                 <Label className="font-body text-sm font-medium">{field.label}</Label>
@@ -90,13 +90,13 @@ export default function Register() {
               disabled={loading}
               className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
             >
-              {loading ? 'Creating...' : 'Create Account'}
+              {loading ? 'Criando...' : 'Criar conta'}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6 font-body">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline">Sign in</Link>
+            Já tem uma conta?{' '}
+            <Link to="/login" className="text-primary hover:underline">Entrar</Link>
           </p>
         </div>
       </div>

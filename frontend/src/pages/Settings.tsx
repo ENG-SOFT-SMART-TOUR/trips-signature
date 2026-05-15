@@ -18,11 +18,11 @@ export default function Settings() {
 
   const handleSave = () => {
     if (!name.trim() || !email.trim()) {
-      toast.error('Name and email are required');
+      toast.error('Nome e e-mail são obrigatórios');
       return;
     }
     updateProfile(name.trim(), email.trim());
-    toast.success('Profile updated!');
+    toast.success('Perfil atualizado!');
   };
 
   const handleLogout = () => {
@@ -31,11 +31,11 @@ export default function Settings() {
   };
 
   const quizLabels: Record<string, string> = {
-    landscape: 'Landscape',
-    style: 'Travel Style',
-    budget: 'Budget',
-    companion: 'Companion',
-    pace: 'Pace',
+    landscape: 'Paisagem',
+    style: 'Estilo de viagem',
+    budget: 'Orçamento',
+    companion: 'Companhia',
+    pace: 'Ritmo',
   };
 
   return (
@@ -46,7 +46,7 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           className="text-3xl font-display font-bold text-foreground"
         >
-          Settings
+          Configurações
         </motion.h1>
 
         {/* Profile */}
@@ -56,20 +56,20 @@ export default function Settings() {
           transition={{ delay: 0.05 }}
           className="bg-surface rounded-xl p-6 space-y-4"
         >
-          <h2 className="text-lg font-display font-semibold text-foreground">Profile</h2>
+          <h2 className="text-lg font-display font-semibold text-foreground">Perfil</h2>
           <div className="space-y-3">
             <div>
-              <label className="text-sm font-body text-muted-foreground mb-1 block">Name</label>
+              <label className="text-sm font-body text-muted-foreground mb-1 block">Nome</label>
               <Input value={name} onChange={e => setName(e.target.value)} />
             </div>
             <div>
-              <label className="text-sm font-body text-muted-foreground mb-1 block">Email</label>
+              <label className="text-sm font-body text-muted-foreground mb-1 block">E-mail</label>
               <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
           </div>
           <Button onClick={handleSave} className="gap-2">
             <Save className="h-4 w-4" />
-            Save Changes
+            Salvar alterações
           </Button>
         </motion.section>
 
@@ -81,7 +81,7 @@ export default function Settings() {
           className="bg-surface rounded-xl p-6 space-y-4"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-display font-semibold text-foreground">Travel Profile</h2>
+            <h2 className="text-lg font-display font-semibold text-foreground">Perfil de Viagem</h2>
             <Button
               variant="outline"
               size="sm"
@@ -89,7 +89,7 @@ export default function Settings() {
               className="gap-2"
             >
               <RefreshCw className="h-4 w-4" />
-              Retake Quiz
+              Refazer quiz
             </Button>
           </div>
           {user?.quizAnswers && Object.keys(user.quizAnswers).length > 0 ? (
@@ -109,7 +109,7 @@ export default function Settings() {
             </div>
           ) : (
             <p className="text-sm font-body text-muted-foreground">
-              You haven't taken the quiz yet. Take it to discover your travel personality!
+              Você ainda não respondeu o quiz. Faça-o para descobrir seu perfil de viajante!
             </p>
           )}
         </motion.section>
@@ -121,11 +121,11 @@ export default function Settings() {
           transition={{ delay: 0.15 }}
           className="bg-surface rounded-xl p-6 space-y-3"
         >
-          <h2 className="text-lg font-display font-semibold text-foreground">Saved Destinations</h2>
+          <h2 className="text-lg font-display font-semibold text-foreground">Destinos salvos</h2>
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span className="text-sm font-body">
-              {savedDestinations.length} destination{savedDestinations.length !== 1 ? 's' : ''} saved
+              {savedDestinations.length} {savedDestinations.length === 1 ? 'destino salvo' : 'destinos salvos'}
             </span>
           </div>
         </motion.section>
@@ -148,10 +148,10 @@ export default function Settings() {
           transition={{ delay: 0.2 }}
           className="bg-surface rounded-xl p-6 space-y-4 border border-destructive/20"
         >
-          <h2 className="text-lg font-display font-semibold text-destructive">Account</h2>
+          <h2 className="text-lg font-display font-semibold text-destructive">Conta</h2>
           <Button variant="destructive" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
-            Log Out
+            Sair
           </Button>
         </motion.section>
       </div>

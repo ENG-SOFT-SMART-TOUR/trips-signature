@@ -20,12 +20,12 @@ export default function Admin() {
 
   const saveDest = () => {
     if (!editDest.name || !editDest.description) {
-      toast.error('Name and description are required');
+      toast.error('Nome e descrição são obrigatórios');
       return;
     }
     if (editDest.id) {
       setDests(ds => ds.map(d => d.id === editDest.id ? { ...d, ...editDest } as Destination : d));
-      toast.success('Destination updated');
+      toast.success('Destino atualizado');
     } else {
       const newDest: Destination = {
         id: `d-${Date.now()}`,
@@ -38,7 +38,7 @@ export default function Admin() {
         longitude: editDest.longitude || 0,
       };
       setDests(ds => [...ds, newDest]);
-      toast.success('Destination added');
+      toast.success('Destino adicionado');
     }
     setDestModal(false);
     setEditDest({});
@@ -46,12 +46,12 @@ export default function Admin() {
 
   const saveAct = () => {
     if (!editAct.name || !editAct.destinationId) {
-      toast.error('Name and destination are required');
+      toast.error('Nome e destino são obrigatórios');
       return;
     }
     if (editAct.id) {
       setActs(as2 => as2.map(a => a.id === editAct.id ? { ...a, ...editAct } as Activity : a));
-      toast.success('Activity updated');
+      toast.success('Atividade atualizada');
     } else {
       const newAct: Activity = {
         id: `a-${Date.now()}`,
@@ -68,7 +68,7 @@ export default function Admin() {
         longitude: 0,
       };
       setActs(as2 => [...as2, newAct]);
-      toast.success('Activity added');
+      toast.success('Atividade adicionada');
     }
     setActModal(false);
     setEditAct({});
@@ -78,28 +78,28 @@ export default function Admin() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="font-display text-3xl font-semibold mb-8">Admin Panel</h1>
+          <h1 className="font-display text-3xl font-semibold mb-8">Painel Admin</h1>
 
           <Tabs defaultValue="destinations">
             <TabsList className="bg-surface rounded-full p-1 mb-8">
-              <TabsTrigger value="destinations" className="rounded-full font-body text-sm">Destinations</TabsTrigger>
-              <TabsTrigger value="activities" className="rounded-full font-body text-sm">Activities</TabsTrigger>
+              <TabsTrigger value="destinations" className="rounded-full font-body text-sm">Destinos</TabsTrigger>
+              <TabsTrigger value="activities" className="rounded-full font-body text-sm">Atividades</TabsTrigger>
             </TabsList>
 
             <TabsContent value="destinations">
               <div className="flex justify-end mb-4">
                 <Button onClick={() => { setEditDest({}); setDestModal(true); }} className="rounded-full bg-accent text-accent-foreground">
-                  <Plus className="h-4 w-4 mr-1" /> Add Destination
+                  <Plus className="h-4 w-4 mr-1" /> Adicionar destino
                 </Button>
               </div>
               <div className="rounded-lg overflow-hidden bg-surface">
                 <table className="w-full text-sm font-body">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left p-4 font-medium">Name</th>
+                      <th className="text-left p-4 font-medium">Nome</th>
                       <th className="text-left p-4 font-medium hidden md:table-cell">Tags</th>
                       <th className="text-left p-4 font-medium hidden md:table-cell">Lat/Lng</th>
-                      <th className="text-right p-4 font-medium">Actions</th>
+                      <th className="text-right p-4 font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -110,10 +110,10 @@ export default function Admin() {
                         <td className="p-4 hidden md:table-cell text-muted-foreground">{d.latitude}, {d.longitude}</td>
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" aria-label={`Edit ${d.name}`} className="rounded-full" onClick={() => { setEditDest(d); setDestModal(true); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Editar ${d.name}`} className="rounded-full" onClick={() => { setEditDest(d); setDestModal(true); }}>
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" aria-label={`Delete ${d.name}`} className="rounded-full hover:text-destructive" onClick={() => { setDests(ds => ds.filter(x => x.id !== d.id)); toast('Deleted'); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Excluir ${d.name}`} className="rounded-full hover:text-destructive" onClick={() => { setDests(ds => ds.filter(x => x.id !== d.id)); toast('Excluído'); }}>
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
@@ -128,18 +128,18 @@ export default function Admin() {
             <TabsContent value="activities">
               <div className="flex justify-end mb-4">
                 <Button onClick={() => { setEditAct({}); setActModal(true); }} className="rounded-full bg-accent text-accent-foreground">
-                  <Plus className="h-4 w-4 mr-1" /> Add Activity
+                  <Plus className="h-4 w-4 mr-1" /> Adicionar atividade
                 </Button>
               </div>
               <div className="rounded-lg overflow-hidden bg-surface">
                 <table className="w-full text-sm font-body">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left p-4 font-medium">Name</th>
-                      <th className="text-left p-4 font-medium hidden md:table-cell">Category</th>
-                      <th className="text-left p-4 font-medium hidden md:table-cell">Duration</th>
-                      <th className="text-left p-4 font-medium hidden md:table-cell">Shift</th>
-                      <th className="text-right p-4 font-medium">Actions</th>
+                      <th className="text-left p-4 font-medium">Nome</th>
+                      <th className="text-left p-4 font-medium hidden md:table-cell">Categoria</th>
+                      <th className="text-left p-4 font-medium hidden md:table-cell">Duração</th>
+                      <th className="text-left p-4 font-medium hidden md:table-cell">Turno</th>
+                      <th className="text-right p-4 font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -151,10 +151,10 @@ export default function Admin() {
                         <td className="p-4 hidden md:table-cell text-muted-foreground capitalize">{a.shift}</td>
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" aria-label={`Edit ${a.name}`} className="rounded-full" onClick={() => { setEditAct(a); setActModal(true); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Editar ${a.name}`} className="rounded-full" onClick={() => { setEditAct(a); setActModal(true); }}>
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" aria-label={`Delete ${a.name}`} className="rounded-full hover:text-destructive" onClick={() => { setActs(as2 => as2.filter(x => x.id !== a.id)); toast('Deleted'); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Excluir ${a.name}`} className="rounded-full hover:text-destructive" onClick={() => { setActs(as2 => as2.filter(x => x.id !== a.id)); toast('Excluído'); }}>
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
@@ -172,21 +172,24 @@ export default function Admin() {
         <Dialog open={destModal} onOpenChange={setDestModal}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-display">{editDest.id ? 'Edit' : 'Add'} Destination</DialogTitle>
+              <DialogTitle className="font-display">{editDest.id ? 'Editar' : 'Adicionar'} destino</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {['name', 'description'].map(field => (
+              {[
+                { field: 'name', label: 'Nome' },
+                { field: 'description', label: 'Descrição' },
+              ].map(({ field, label }) => (
                 <div key={field} className="space-y-1">
-                  <Label className="font-body text-sm capitalize">{field}</Label>
+                  <Label className="font-body text-sm">{label}</Label>
                   <Input
-                    value={(editDest as any)[field] || ''}
+                    value={(editDest as Record<string, unknown>)[field] as string || ''}
                     onChange={e => setEditDest(d => ({ ...d, [field]: e.target.value }))}
                     className="bg-transparent border border-border"
                   />
                 </div>
               ))}
               <div className="space-y-1">
-                <Label className="font-body text-sm">Tags (comma-separated)</Label>
+                <Label className="font-body text-sm">Tags (separadas por vírgula)</Label>
                 <Input
                   value={Array.isArray(editDest.tags) ? editDest.tags.join(', ') : (editDest.tags as string) || ''}
                   onChange={e => setEditDest(d => ({ ...d, tags: e.target.value as any }))}
@@ -213,7 +216,7 @@ export default function Admin() {
                   />
                 </div>
               </div>
-              <Button onClick={saveDest} className="w-full rounded-full bg-primary text-primary-foreground">Save</Button>
+              <Button onClick={saveDest} className="w-full rounded-full bg-primary text-primary-foreground">Salvar</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -222,51 +225,51 @@ export default function Admin() {
         <Dialog open={actModal} onOpenChange={setActModal}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-display">{editAct.id ? 'Edit' : 'Add'} Activity</DialogTitle>
+              <DialogTitle className="font-display">{editAct.id ? 'Editar' : 'Adicionar'} atividade</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-1">
-                <Label className="font-body text-sm">Name</Label>
+                <Label className="font-body text-sm">Nome</Label>
                 <Input value={editAct.name || ''} onChange={e => setEditAct(a => ({ ...a, name: e.target.value }))} className="bg-transparent border border-border" />
               </div>
               <div className="space-y-1">
-                <Label className="font-body text-sm">Destination</Label>
+                <Label className="font-body text-sm">Destino</Label>
                 <select
                   value={editAct.destinationId || ''}
                   onChange={e => setEditAct(a => ({ ...a, destinationId: e.target.value }))}
                   className="w-full h-10 rounded-md border border-border bg-transparent px-3 text-sm font-body"
                 >
-                  <option value="">Select...</option>
+                  <option value="">Selecionar...</option>
                   {initialDests.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <Label className="font-body text-sm">Category</Label>
+                  <Label className="font-body text-sm">Categoria</Label>
                   <Input value={editAct.category || ''} onChange={e => setEditAct(a => ({ ...a, category: e.target.value }))} className="bg-transparent border border-border" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="font-body text-sm">Duration</Label>
+                  <Label className="font-body text-sm">Duração</Label>
                   <Input value={editAct.duration || ''} onChange={e => setEditAct(a => ({ ...a, duration: e.target.value }))} className="bg-transparent border border-border" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="font-body text-sm">Shift</Label>
+                  <Label className="font-body text-sm">Turno</Label>
                   <select
                     value={editAct.shift || ''}
                     onChange={e => setEditAct(a => ({ ...a, shift: e.target.value as Activity['shift'] }))}
                     className="w-full h-10 rounded-md border border-border bg-transparent px-3 text-sm font-body"
                   >
-                    <option value="morning">Morning</option>
-                    <option value="afternoon">Afternoon</option>
-                    <option value="evening">Evening</option>
+                    <option value="morning">Manhã</option>
+                    <option value="afternoon">Tarde</option>
+                    <option value="evening">Noite</option>
                   </select>
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="font-body text-sm">Address</Label>
+                <Label className="font-body text-sm">Endereço</Label>
                 <Input value={editAct.address || ''} onChange={e => setEditAct(a => ({ ...a, address: e.target.value }))} className="bg-transparent border border-border" />
               </div>
-              <Button onClick={saveAct} className="w-full rounded-full bg-primary text-primary-foreground">Save</Button>
+              <Button onClick={saveAct} className="w-full rounded-full bg-primary text-primary-foreground">Salvar</Button>
             </div>
           </DialogContent>
         </Dialog>

@@ -19,14 +19,14 @@ export default function Diaries() {
       <PageTransition>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-10">
-            <PageHeader label="Your stories" title="My Diaries" />
+            <PageHeader label="Suas histórias" title="Meus Diários" />
           </div>
 
           {diaries.length === 0 ? (
             <EmptyState
               icon={BookOpen}
-              title="No diaries yet"
-              description="Your travel diaries will appear here after completing a trip."
+              title="Nenhum diário ainda"
+              description="Seus diários de viagem aparecerão aqui após você completar uma viagem."
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -41,13 +41,13 @@ export default function Diaries() {
                     badge={
                       <span className="font-body text-xs text-muted-foreground bg-background px-3 py-1 rounded-full flex items-center gap-1">
                         {d.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                        {d.isPublic ? 'Public' : 'Private'}
+                        {d.isPublic ? 'Público' : 'Privado'}
                       </span>
                     }
-                    subtitle={`${d.entries.length} entries`}
-                    footerLabel="Read diary"
+                    subtitle={`${d.entries.length} ${d.entries.length === 1 ? 'entrada' : 'entradas'}`}
+                    footerLabel="Ler diário"
                     onDelete={() => setPendingDeleteId(d.id)}
-                    deleteAriaLabel="Delete diary"
+                    deleteAriaLabel="Excluir diário"
                     delay={i * 0.08}
                   />
                 );
@@ -59,15 +59,15 @@ export default function Diaries() {
       <ConfirmDialog
         open={!!pendingDeleteId}
         onOpenChange={(open) => !open && setPendingDeleteId(null)}
-        title="Delete this diary?"
-        description="This will permanently remove the diary and all its entries."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title="Excluir este diário?"
+        description="O diário e todas as suas entradas serão removidos permanentemente."
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
         destructive
         onConfirm={() => {
           if (pendingDeleteId) {
             deleteDiary(pendingDeleteId);
-            toast.success('Diary deleted');
+            toast.success('Diário excluído');
             setPendingDeleteId(null);
           }
         }}

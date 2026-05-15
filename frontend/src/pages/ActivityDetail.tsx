@@ -28,25 +28,25 @@ export default function ActivityDetail() {
   const [selectedIt, setSelectedIt] = useState('');
   const [selectedDay, setSelectedDay] = useState(0);
 
-  if (!activity) return <AppLayout><div className="p-12 text-center text-muted-foreground">Activity not found.</div></AppLayout>;
+  if (!activity) return <AppLayout><div className="p-12 text-center text-muted-foreground">Atividade não encontrada.</div></AppLayout>;
 
   const handleAdd = () => {
     const it = itineraries.find(i => i.id === selectedIt);
     if (!it) return;
     const day = it.days[selectedDay];
     if (day.activityIds.length >= 5) {
-      toast.error('Day is full (max 5 activities)');
+      toast.error('Dia cheio (máximo 5 atividades)');
       return;
     }
     if (day.activityIds.includes(activity.id)) {
-      toast.error('Activity already added to this day');
+      toast.error('Atividade já adicionada neste dia');
       return;
     }
     const newDays = it.days.map((d, i) =>
       i === selectedDay ? { ...d, activityIds: [...d.activityIds, activity.id] } : d
     );
     updateItinerary(it.id, newDays);
-    toast.success(`Added to Day ${day.dayNumber}`);
+    toast.success(`Adicionada ao Dia ${day.dayNumber}`);
     setAddOpen(false);
   };
 
@@ -120,7 +120,7 @@ export default function ActivityDetail() {
               <h1 className="font-display text-3xl font-semibold mb-1">{activity.name}</h1>
             </div>
             <Button onClick={() => setAddOpen(true)} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-              <Plus className="h-4 w-4 mr-1" /> Add to Itinerary
+              <Plus className="h-4 w-4 mr-1" /> Adicionar ao roteiro
             </Button>
           </div>
 
@@ -145,14 +145,14 @@ export default function ActivityDetail() {
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-display">Add to Itinerary</DialogTitle>
+              <DialogTitle className="font-display">Adicionar ao roteiro</DialogTitle>
             </DialogHeader>
             {itineraries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No itineraries yet. Create one first.</p>
+              <p className="text-sm text-muted-foreground">Você ainda não tem roteiros. Crie um primeiro.</p>
             ) : (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="font-body text-sm font-medium">Select Itinerary</label>
+                  <label className="font-body text-sm font-medium">Selecionar roteiro</label>
                   <div className="space-y-1">
                     {itineraries.map(it => {
                       const d = getDestination(it.destinationId);
@@ -164,7 +164,7 @@ export default function ActivityDetail() {
                             selectedIt === it.id ? 'bg-primary text-primary-foreground' : 'bg-surface hover:bg-surface/80'
                           }`}
                         >
-                          {d?.name} · {it.days.length} days
+                          {d?.name} · {it.days.length} {it.days.length === 1 ? 'dia' : 'dias'}
                         </button>
                       );
                     })}
@@ -172,7 +172,7 @@ export default function ActivityDetail() {
                 </div>
                 {selectedIt && (
                   <div className="space-y-2">
-                    <label className="font-body text-sm font-medium">Select Day</label>
+                    <label className="font-body text-sm font-medium">Selecionar dia</label>
                     <div className="grid grid-cols-4 gap-2">
                       {itineraries.find(i => i.id === selectedIt)?.days.map((day, i) => (
                         <button
@@ -182,14 +182,14 @@ export default function ActivityDetail() {
                             i === selectedDay ? 'bg-primary text-primary-foreground' : 'bg-surface hover:bg-surface/80'
                           }`}
                         >
-                          Day {day.dayNumber}
+                          Dia {day.dayNumber}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
                 <Button onClick={handleAdd} disabled={!selectedIt} className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-                  Add Activity
+                  Adicionar atividade
                 </Button>
               </div>
             )}
