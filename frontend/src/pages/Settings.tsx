@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
+import { destinoApi } from '@/services/api';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,18 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 export default function Settings() {
-  const { user, savedDestinations, logout, updateProfile, resetQuiz } = useStore();
+  const { user, logout, updateProfile, resetQuiz } = useStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [savedCount, setSavedCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    destinoApi.listarSalvos(user.id)
+      .then(res => setSavedCount(res.data.length))
+      .catch(() => {});
+  }, [user]);
 
   const handleSave = () => {
     if (!name.trim() || !email.trim()) {
@@ -124,7 +133,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span className="text-sm font-body">
-              {savedDestinations.length} destination{savedDestinations.length !== 1 ? 's' : ''} saved
+              {savedCount} destination{savedCount !== 1 ? 's' : ''} saved
             </span>
           </div>
         </motion.section>
