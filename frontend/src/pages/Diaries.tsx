@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useStore } from '@/store/useStore';
 import { getDestination } from '@/data/mockData';
 import { BookOpen, Globe, Lock } from 'lucide-react';
@@ -5,11 +6,13 @@ import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
 import ItemCard from '@/components/ItemCard';
 import PageHeader from '@/components/PageHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
 export default function Diaries() {
   const { diaries, deleteDiary } = useStore();
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   return (
     <AppLayout>
@@ -43,12 +46,7 @@ export default function Diaries() {
                     }
                     subtitle={`${d.entries.length} entries`}
                     footerLabel="Read diary"
-                    onDelete={() => {
-                      if (confirm('Delete this diary?')) {
-                        deleteDiary(d.id);
-                        toast.success('Diary deleted');
-                      }
-                    }}
+                    onDelete={() => setPendingDeleteId(d.id)}
                     deleteAriaLabel="Delete diary"
                     delay={i * 0.08}
                   />
@@ -58,6 +56,22 @@ export default function Diaries() {
           )}
         </div>
       </PageTransition>
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        title="Delete this diary?"
+        description="This will permanently remove the diary and all its entries."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          if (pendingDeleteId) {
+            deleteDiary(pendingDeleteId);
+            toast.success('Diary deleted');
+            setPendingDeleteId(null);
+          }
+        }}
+      />
     </AppLayout>
   );
 }

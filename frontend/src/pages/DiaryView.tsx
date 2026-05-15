@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { getDestination, getActivity } from '@/data/mockData';
@@ -8,6 +9,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import EmptyState from '@/components/EmptyState';
 import PageHeader from '@/components/PageHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
@@ -16,6 +18,8 @@ export default function DiaryView() {
   const navigate = useNavigate();
   const { diaries, toggleDiaryPublic, deleteDiary, deleteDiaryEntry } = useStore();
   const diary = diaries.find(d => d.id === id);
+  const [pendingDeleteDiary, setPendingDeleteDiary] = useState(false);
+  const [pendingDeleteEntryId, setPendingDeleteEntryId] = useState<string | null>(null);
 
   if (!diary) return <AppLayout><div className="p-12 text-center text-muted-foreground">Diary not found.</div></AppLayout>;
 
@@ -68,13 +72,7 @@ export default function DiaryView() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => {
-                if (confirm('Are you sure you want to delete this diary?')) {
-                  deleteDiary(diary.id);
-                  toast.success('Diary deleted');
-                  navigate('/diaries');
-                }
-              }}
+              onClick={() => setPendingDeleteDiary(true)}
               className="rounded-full text-destructive border-destructive/30 hover:bg-destructive/10"
             >
               <Trash2 className="h-4 w-4 mr-1" /> Delete Diary
@@ -119,12 +117,8 @@ export default function DiaryView() {
                               <p className="font-body text-xs text-muted-foreground mt-2">{new Date(entry.timestamp).toLocaleString()}</p>
                             </div>
                             <button
-                              onClick={() => {
-                                if (confirm('Delete this entry?')) {
-                                  deleteDiaryEntry(diary.id, entry.id);
-                                  toast.success('Entry deleted');
-                                }
-                              }}
+                              aria-label="Delete entry"
+                              onClick={() => setPendingDeleteEntryId(entry.id)}
                               className="p-1.5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -140,6 +134,36 @@ export default function DiaryView() {
           )}
         </div>
       </PageTransition>
+      <ConfirmDialog
+        open={pendingDeleteDiary}
+        onOpenChange={setPendingDeleteDiary}
+        title="Delete this diary?"
+        description="This will permanently remove the diary and all its entries."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          deleteDiary(diary.id);
+          toast.success('Diary deleted');
+          setPendingDeleteDiary(false);
+          navigate('/diaries');
+        }}
+      />
+      <ConfirmDialog
+        open={!!pendingDeleteEntryId}
+        onOpenChange={(open) => !open && setPendingDeleteEntryId(null)}
+        title="Delete this entry?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          if (pendingDeleteEntryId) {
+            deleteDiaryEntry(diary.id, pendingDeleteEntryId);
+            toast.success('Entry deleted');
+            setPendingDeleteEntryId(null);
+          }
+        }}
+      />
     </AppLayout>
   );
 }

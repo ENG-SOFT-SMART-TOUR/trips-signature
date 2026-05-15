@@ -8,6 +8,7 @@ import EmptyState from '@/components/EmptyState';
 import ItemCard from '@/components/ItemCard';
 import PageHeader from '@/components/PageHeader';
 import LoadingState from '@/components/LoadingState';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { roteiroApi } from '@/services/api';
@@ -19,6 +20,7 @@ export default function Itineraries() {
 
   const [roteiros, setRoteiros] = useState<Roteiro[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<Roteiro | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -29,8 +31,10 @@ export default function Itineraries() {
       .finally(() => setLoading(false));
   }, [user]);
 
-  const handleDeletar = async (roteiro: Roteiro) => {
-    if (!user || !confirm('Excluir este roteiro?')) return;
+  const confirmarDelecao = async () => {
+    if (!user || !pendingDelete) return;
+    const roteiro = pendingDelete;
+    setPendingDelete(null);
     try {
       await roteiroApi.deletar(roteiro.id, user.id);
       setRoteiros(prev => prev.filter(r => r.id !== roteiro.id));
@@ -85,7 +89,7 @@ export default function Itineraries() {
                     </>
                   }
                   footerLabel="Ver roteiro"
-                  onDelete={() => handleDeletar(roteiro)}
+                  onDelete={() => setPendingDelete(roteiro)}
                   deleteAriaLabel="Excluir roteiro"
                   delay={i * 0.08}
                 />
@@ -94,6 +98,16 @@ export default function Itineraries() {
           )}
         </div>
       </PageTransition>
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Excluir este roteiro?"
+        description={pendingDelete ? `O roteiro para ${pendingDelete.destino.nome} será excluído permanentemente.` : undefined}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        destructive
+        onConfirm={confirmarDelecao}
+      />
     </AppLayout>
   );
 }
