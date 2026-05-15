@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import AppLayout from '@/components/AppLayout';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Save, LogOut, Trash2, MapPin } from 'lucide-react';
+import { RefreshCw, Save, LogOut, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
@@ -127,6 +128,17 @@ export default function Settings() {
               {savedDestinations.length} destination{savedDestinations.length !== 1 ? 's' : ''} saved
             </span>
           </div>
+        </motion.section>
+
+        {/* Appearance */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="bg-surface rounded-xl p-6 space-y-4"
+        >
+          <h2 className="text-lg font-display font-semibold text-foreground">Aparência</h2>
+          <ThemeToggle />
         </motion.section>
 
         {/* Account */}
