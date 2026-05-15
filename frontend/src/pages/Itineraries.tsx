@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { roteiroApi } from '@/services/api';
@@ -44,8 +45,7 @@ export default function Itineraries() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Suas viagens</span>
-              <h1 className="font-display text-4xl font-semibold">Meus Roteiros</h1>
+              <PageHeader label="Suas viagens" title="Meus Roteiros" />
             </div>
             <Button
               onClick={() => navigate('/itinerary/new')}

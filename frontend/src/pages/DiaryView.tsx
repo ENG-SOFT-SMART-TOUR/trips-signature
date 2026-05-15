@@ -7,6 +7,7 @@ import { Plus, Share2, BookOpen, Image, Calendar, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import EmptyState from '@/components/EmptyState';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
@@ -30,8 +31,7 @@ export default function DiaryView() {
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="flex items-start justify-between mb-8">
             <div>
-              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Travel diary</span>
-              <h1 className="font-display text-3xl font-semibold">{dest?.name}</h1>
+              <PageHeader label="Travel diary" title={dest?.name} size="lg" />
               <div className="flex gap-4 mt-2 text-sm text-muted-foreground font-body">
                 <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {diary.entries.length} entries</span>
                 <span className="flex items-center gap-1"><Image className="h-3 w-3" /> {diary.entries.filter(e => e.photo).length} photos</span>

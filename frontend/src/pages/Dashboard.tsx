@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Map, BookOpen, Heart, ArrowRight, Compass, Calendar, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { destinoApi } from '@/services/api';
@@ -61,8 +62,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-10"
           >
-            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Bem-vindo de volta</span>
-            <h1 className="font-display text-4xl font-semibold">{user?.name || 'Viajante'}</h1>
+            <PageHeader label="Bem-vindo de volta" title={user?.name || 'Viajante'} />
           </motion.div>
 
           {/* Stats Grid */}

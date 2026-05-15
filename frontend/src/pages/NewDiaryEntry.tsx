@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
@@ -58,8 +59,7 @@ export default function NewDiaryEntry() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-lg mx-auto px-4 py-12">
-          <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">New entry</span>
-          <h1 className="font-display text-3xl font-semibold mb-8">Write a Memory</h1>
+          <PageHeader label="New entry" title="Write a Memory" size="lg" titleClassName="mb-8" />
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1.5">

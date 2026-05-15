@@ -5,6 +5,7 @@ import { BookOpen, Globe, Lock, ArrowRight, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
@@ -17,8 +18,7 @@ export default function Diaries() {
       <PageTransition>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-10">
-            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Your stories</span>
-            <h1 className="font-display text-4xl font-semibold">My Diaries</h1>
+            <PageHeader label="Your stories" title="My Diaries" />
           </div>
 
           {diaries.length === 0 ? (

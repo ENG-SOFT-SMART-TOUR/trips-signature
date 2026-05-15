@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { destinoApi, roteiroApi } from '@/services/api';
@@ -152,8 +153,7 @@ export default function NewItinerary() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-lg mx-auto px-4 py-12">
-          <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">New trip</span>
-          <h1 className="font-display text-3xl font-semibold mb-2">Create Itinerary</h1>
+          <PageHeader label="New trip" title="Create Itinerary" size="lg" titleClassName="mb-2" />
           {!loading && (
             <p className="font-body text-sm text-muted-foreground mb-8">
               {destinos.length < 19

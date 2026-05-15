@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import EmptyState from '@/components/EmptyState';
+import PageHeader from '@/components/PageHeader';
 import { destinoApi } from '@/services/api';
 import type { Destino } from '@/types/index';
 
@@ -84,8 +85,7 @@ export default function Matches() {
       <PageTransition>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-12">
-            <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">Suas combinações</span>
-            <h1 className="font-display text-4xl font-semibold">Destinos para você</h1>
+            <PageHeader label="Suas combinações" title="Destinos para você" />
           </div>
 
           {destinos.length === 0 ? (
