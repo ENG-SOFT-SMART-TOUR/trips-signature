@@ -100,21 +100,27 @@ export default function Settings() {
               Retake Quiz
             </Button>
           </div>
-          {user?.quizAnswers && Object.keys(user.quizAnswers).length > 0 ? (
-            <div className="space-y-3">
-              {Object.entries(user.quizAnswers).map(([key, value]) =>
-                value ? (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-sm font-body text-muted-foreground">
-                      {quizLabels[key] || key}
-                    </span>
-                    <Badge variant="secondary" className="capitalize">
-                      {value}
-                    </Badge>
-                  </div>
-                ) : null
-              )}
-            </div>
+          {user?.quizCompleto ? (
+            Object.keys(user.quizAnswers ?? {}).length > 0 ? (
+              <div className="space-y-3">
+                {Object.entries(user.quizAnswers).map(([key, value]) =>
+                  value ? (
+                    <div key={key} className="flex items-center justify-between">
+                      <span className="text-sm font-body text-muted-foreground">
+                        {quizLabels[key] || key}
+                      </span>
+                      <Badge variant="secondary" className="capitalize">
+                        {value}
+                      </Badge>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            ) : (
+              <p className="text-sm font-body text-muted-foreground">
+                Quiz completed! Retake to update your travel profile.
+              </p>
+            )
           ) : (
             <p className="text-sm font-body text-muted-foreground">
               You haven't taken the quiz yet. Take it to discover your travel personality!
