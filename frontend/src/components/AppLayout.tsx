@@ -1,8 +1,9 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
-import { Map, Heart, BookOpen, LayoutDashboard, LogOut, Menu, X, Compass, RefreshCw } from 'lucide-react';
+import { Map, BookOpen, LayoutDashboard, LogOut, Menu, X, Compass, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useStore();
@@ -11,10 +12,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/matches', label: 'Matches', icon: Compass },
-    { to: '/itineraries', label: 'Itineraries', icon: Map },
-    { to: '/diaries', label: 'Diaries', icon: BookOpen },
+    { to: '/dashboard', label: 'Início', icon: LayoutDashboard },
+    { to: '/matches', label: 'Combinações', icon: Compass },
+    { to: '/itineraries', label: 'Roteiros', icon: Map },
+    { to: '/diaries', label: 'Diários', icon: BookOpen },
   ];
 
   const getIsActive = (link: typeof links[0]) => {
@@ -54,13 +55,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="hidden md:flex items-center gap-2">
+              <ThemeToggleButton />
               <button
                 onClick={() => navigate('/quiz')}
                 className="relative overflow-hidden flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(150,80%,38%)] text-white text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-[hsl(150,80%,38%)]/30 group"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
                 <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180 relative z-10" />
-                <span className="relative z-10">Redo Quiz</span>
+                <span className="relative z-10">Refazer Quiz</span>
               </button>
               <Link
                 to="/settings"
@@ -73,12 +75,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
 
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded-full hover:bg-surface transition-colors"
-            >
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            <div className="md:hidden flex items-center gap-1">
+              <ThemeToggleButton />
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+                className="p-2 rounded-full hover:bg-surface transition-colors"
+              >
+                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -107,7 +113,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive w-full"
                 >
                   <LogOut className="h-4 w-4" />
-                  Log Out
+                  Sair
                 </button>
               </div>
             </motion.div>

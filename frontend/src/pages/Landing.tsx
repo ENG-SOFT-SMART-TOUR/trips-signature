@@ -3,37 +3,45 @@ import { Button } from '@/components/ui/button';
 import { Compass, Map, Sparkles, ArrowRight, Mountain, TreePine, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageTransition from '@/components/PageTransition';
+import ThemeToggleButton from '@/components/ThemeToggleButton';
 import heroImg from '@/assets/hero-travel.jpg';
 import natureImg from '@/assets/section-nature.jpg';
 
 const destinations = [
-  { name: 'Kyoto', country: 'Japan', tag: 'Culture' },
-  { name: 'Santorini', country: 'Greece', tag: 'Coastal' },
-  { name: 'Patagonia', country: 'Argentina', tag: 'Adventure' },
-  { name: 'Marrakech', country: 'Morocco', tag: 'Heritage' },
+  { name: 'Kyoto', country: 'Japão', tag: 'Cultura' },
+  { name: 'Santorini', country: 'Grécia', tag: 'Litoral' },
+  { name: 'Patagônia', country: 'Argentina', tag: 'Aventura' },
+  { name: 'Marrakech', country: 'Marrocos', tag: 'Herança' },
 ];
 
 const steps = [
-  { icon: Sparkles, title: 'Take the Quiz', desc: 'Tell us about your ideal travel style and preferences.' },
-  { icon: Compass, title: 'Get Matched', desc: 'We pair you with destinations that match your personality.' },
-  { icon: Map, title: 'Plan Your Trip', desc: 'Build a detailed itinerary with curated local experiences.' },
+  { icon: Sparkles, title: 'Faça o quiz', desc: 'Conte para nós o seu estilo de viagem e suas preferências.' },
+  { icon: Compass, title: 'Receba combinações', desc: 'Combinamos você com destinos que casam com sua personalidade.' },
+  { icon: Map, title: 'Planeje sua viagem', desc: 'Monte um roteiro detalhado com experiências locais selecionadas.' },
 ];
 
 const stats = [
-  { icon: Globe, value: '50+', label: 'Destinations' },
-  { icon: Mountain, value: '200+', label: 'Activities' },
-  { icon: TreePine, value: '1,000+', label: 'Experiences' },
+  { icon: Globe, value: '50+', label: 'Destinos' },
+  { icon: Mountain, value: '200+', label: 'Atividades' },
+  { icon: TreePine, value: '1.000+', label: 'Experiências' },
 ];
 
 export default function Landing() {
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
+        {/* Floating theme toggle */}
+        <div className="fixed top-4 right-4 z-50">
+          <div className="rounded-full bg-background/60 backdrop-blur-md border border-border/60 shadow-sm">
+            <ThemeToggleButton />
+          </div>
+        </div>
+
         {/* Hero */}
         <div className="relative h-screen flex items-center justify-center overflow-hidden grain-overlay">
           <img
             src={heroImg}
-            alt="Scenic coastal road winding along turquoise ocean cliffs"
+            alt="Estrada litorânea sinuosa entre falésias e oceano turquesa"
             className="absolute inset-0 w-full h-full object-cover"
             width={1920}
             height={1080}
@@ -54,22 +62,22 @@ export default function Landing() {
                 </span>
               </div>
               <h1 className="font-display text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
-                Your journey,
+                Sua jornada,
                 <br />
-                <span className="italic">your signature</span>
+                <span className="italic">sua assinatura</span>
               </h1>
               <p className="font-body text-lg text-primary-foreground/80 mb-10 max-w-lg mx-auto">
-                Personalized itineraries crafted around who you are. Every trip tells your story.
+                Roteiros personalizados moldados para quem você é. Cada viagem conta sua história.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/register">
                   <Button size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-8 text-base">
-                    Start Your Journey <ArrowRight className="ml-2 h-4 w-4" />
+                    Comece sua jornada <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/login">
                   <Button size="lg" variant="outline" className="rounded-full border-2 border-primary-foreground/60 text-primary-foreground bg-primary-foreground/10 backdrop-blur-sm hover:bg-primary-foreground/20 px-8 text-base font-medium">
-                    Sign In
+                    Entrar
                   </Button>
                 </Link>
               </div>
@@ -118,8 +126,8 @@ export default function Landing() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-3 block">How it works</span>
-              <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground">Three steps to your perfect trip</h2>
+              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-3 block">Como funciona</span>
+              <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground">Três passos até a sua viagem ideal</h2>
             </motion.div>
             <div className="grid md:grid-cols-3 gap-12">
               {steps.map((step, i) => (
@@ -148,7 +156,7 @@ export default function Landing() {
             <div className="relative">
               <img
                 src={natureImg}
-                alt="Mountain lake surrounded by pine forests"
+                alt="Lago entre montanhas cercado por florestas de pinheiros"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
                 width={1920}
@@ -163,16 +171,16 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
               >
-                <span className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-3 block">Discover</span>
+                <span className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-3 block">Descubra</span>
                 <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4 leading-tight">
-                  Adventures tailored to your spirit
+                  Aventuras feitas para o seu espírito
                 </h2>
                 <p className="font-body text-muted-foreground mb-8 leading-relaxed">
-                  From misty mountain trails to sun-kissed coastlines, every itinerary is designed around your unique travel personality. Take the quiz and let the journey begin.
+                  De trilhas em montanhas enevoadas a costas banhadas pelo sol, cada roteiro é desenhado em torno do seu jeito único de viajar. Faça o quiz e comece a jornada.
                 </p>
                 <Link to="/register">
                   <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-8">
-                    Explore Destinations <ArrowRight className="ml-2 h-4 w-4" />
+                    Explorar destinos <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </motion.div>
@@ -190,8 +198,8 @@ export default function Landing() {
               transition={{ duration: 0.6 }}
               className="text-center mb-14"
             >
-              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-3 block">Popular</span>
-              <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground">Destinations travelers love</h2>
+              <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-3 block">Populares</span>
+              <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground">Destinos que os viajantes amam</h2>
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {destinations.map((dest, i) => (
@@ -236,14 +244,14 @@ export default function Landing() {
             >
               <Compass className="h-10 w-10 text-primary-foreground/60 mx-auto mb-6" />
               <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                Ready to find your perfect trip?
+                Pronto para encontrar sua viagem perfeita?
               </h2>
               <p className="font-body text-primary-foreground/70 mb-8">
-                Take a 2-minute quiz and get matched with destinations that fit your travel style.
+                Faça um quiz de 2 minutos e receba combinações de destinos que combinam com você.
               </p>
               <Link to="/register">
                 <Button size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-10 text-base">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Começar gratuitamente <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </motion.div>
@@ -252,7 +260,7 @@ export default function Landing() {
 
         {/* Footer */}
         <footer className="py-12 px-4 text-center bg-card">
-          <p className="text-sm text-muted-foreground font-body">© 2026 Signature Trips. Crafted with wanderlust.</p>
+          <p className="text-sm text-muted-foreground font-body">© 2026 Signature Trips. Feito com vontade de explorar.</p>
         </footer>
       </div>
     </PageTransition>
