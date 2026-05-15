@@ -7,6 +7,7 @@ import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import EmptyState from '@/components/EmptyState';
 import PageHeader from '@/components/PageHeader';
+import LoadingState from '@/components/LoadingState';
 import { destinoApi } from '@/services/api';
 import type { Destino } from '@/types/index';
 
@@ -73,9 +74,7 @@ export default function Matches() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <span className="font-body text-sm text-muted-foreground">Carregando destinos...</span>
-        </div>
+        <LoadingState message="Carregando destinos..." />
       </AppLayout>
     );
   }

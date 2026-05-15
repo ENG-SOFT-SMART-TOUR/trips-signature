@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
 import PageHeader from '@/components/PageHeader';
+import LoadingState from '@/components/LoadingState';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { roteiroApi } from '@/services/api';
@@ -56,7 +57,7 @@ export default function Itineraries() {
           </div>
 
           {loading ? (
-            <p className="font-body text-sm text-muted-foreground">Carregando roteiros...</p>
+            <LoadingState message="Carregando roteiros..." />
           ) : roteiros.length === 0 ? (
             <EmptyState
               icon={Map}
