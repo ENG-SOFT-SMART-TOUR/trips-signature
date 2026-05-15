@@ -145,9 +145,19 @@ export default function NewDiaryEntry() {
               )}
             </div>
 
-            <Button type="submit" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-              Save Entry
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(`/diary/${id}`)}
+                className="rounded-full"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
+                Save Entry
+              </Button>
+            </div>
           </form>
         </div>
       </PageTransition>

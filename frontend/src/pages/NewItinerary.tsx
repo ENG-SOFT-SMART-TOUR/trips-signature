@@ -243,17 +243,27 @@ export default function NewItinerary() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                {submitting
-                  ? 'Saving...'
-                  : diasPreview.length > 0
-                    ? `Create ${diasPreview.length}-day Itinerary`
-                    : 'Create Itinerary'}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/itineraries')}
+                  className="rounded-full"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                  {submitting
+                    ? 'Saving...'
+                    : diasPreview.length > 0
+                      ? `Create ${diasPreview.length}-day Itinerary`
+                      : 'Create Itinerary'}
+                </Button>
+              </div>
             </form>
           )}
         </div>
