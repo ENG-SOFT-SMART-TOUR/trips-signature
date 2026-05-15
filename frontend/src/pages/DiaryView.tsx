@@ -44,14 +44,20 @@ export default function DiaryView() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-body text-muted-foreground">{diary.isPublic ? 'Public' : 'Private'}</span>
-                <Switch checked={diary.isPublic} onCheckedChange={() => {
-                  toggleDiaryPublic(diary.id);
-                  toast(diary.isPublic ? 'Diary set to private' : 'Diary is now public');
-                }} />
+                <Switch
+                  checked={diary.isPublic}
+                  aria-label="Toggle public diary"
+                  title="When public, the diary is reachable via a share link"
+                  onCheckedChange={() => {
+                    toggleDiaryPublic(diary.id);
+                    toast(diary.isPublic ? 'Diary set to private' : 'Diary is now public');
+                  }}
+                />
               </div>
               <Button
                 variant="ghost"
                 className="rounded-full text-sm"
+                title="Copy the public link to share this diary"
                 onClick={() => {
                   const url = `${window.location.origin}/share/${diary.shareToken}`;
                   navigator.clipboard.writeText(url);

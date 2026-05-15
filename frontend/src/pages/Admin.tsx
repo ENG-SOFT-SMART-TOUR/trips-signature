@@ -110,10 +110,10 @@ export default function Admin() {
                         <td className="p-4 hidden md:table-cell text-muted-foreground">{d.latitude}, {d.longitude}</td>
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => { setEditDest(d); setDestModal(true); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Edit ${d.name}`} className="rounded-full" onClick={() => { setEditDest(d); setDestModal(true); }}>
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="rounded-full hover:text-destructive" onClick={() => { setDests(ds => ds.filter(x => x.id !== d.id)); toast('Deleted'); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Delete ${d.name}`} className="rounded-full hover:text-destructive" onClick={() => { setDests(ds => ds.filter(x => x.id !== d.id)); toast('Deleted'); }}>
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
@@ -151,10 +151,10 @@ export default function Admin() {
                         <td className="p-4 hidden md:table-cell text-muted-foreground capitalize">{a.shift}</td>
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => { setEditAct(a); setActModal(true); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Edit ${a.name}`} className="rounded-full" onClick={() => { setEditAct(a); setActModal(true); }}>
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="rounded-full hover:text-destructive" onClick={() => { setActs(as2 => as2.filter(x => x.id !== a.id)); toast('Deleted'); }}>
+                            <Button variant="ghost" size="icon" aria-label={`Delete ${a.name}`} className="rounded-full hover:text-destructive" onClick={() => { setActs(as2 => as2.filter(x => x.id !== a.id)); toast('Deleted'); }}>
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
