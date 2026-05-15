@@ -18,8 +18,8 @@ export default function Login() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email is required';
-    if (!form.password) e.password = 'Password is required';
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'E-mail válido é obrigatório';
+    if (!form.password) e.password = 'Senha é obrigatória';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -35,10 +35,10 @@ export default function Login() {
         senha: form.password,
       });
       login(data.email, data.nome, data.id, data.quizCompleto);
-      toast.success('Welcome back!');
+      toast.success('Bem-vindo de volta!');
       navigate(data.quizCompleto ? '/dashboard' : '/quiz');
     } catch {
-      toast.error('Invalid email or password');
+      toast.error('E-mail ou senha inválidos');
     } finally {
       setLoading(false);
     }
@@ -53,16 +53,16 @@ export default function Login() {
               <Compass className="h-6 w-6 text-primary" />
               <span className="font-display text-xl font-semibold">Signature Trips</span>
             </Link>
-            <h1 className="font-display text-3xl font-semibold mb-2">Welcome back</h1>
-            <p className="text-sm text-muted-foreground font-body">Continue your travel journey</p>
+            <h1 className="font-display text-3xl font-semibold mb-2">Bem-vindo de volta</h1>
+            <p className="text-sm text-muted-foreground font-body">Continue sua jornada de viagem</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Email</Label>
+              <Label className="font-body text-sm font-medium">E-mail</Label>
               <Input
                 type="email"
-                placeholder="john@example.com"
+                placeholder="joao@exemplo.com"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className="bg-transparent border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary px-0"
@@ -70,7 +70,7 @@ export default function Login() {
               {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Password</Label>
+              <Label className="font-body text-sm font-medium">Senha</Label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -85,13 +85,13 @@ export default function Login() {
               disabled={loading}
               className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6 font-body">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary hover:underline">Create one</Link>
+            Ainda não tem conta?{' '}
+            <Link to="/register" className="text-primary hover:underline">Criar uma</Link>
           </p>
         </div>
       </div>

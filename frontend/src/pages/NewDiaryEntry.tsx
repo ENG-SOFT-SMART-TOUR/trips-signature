@@ -1,12 +1,21 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
-import { getActivity, getDestinationActivities } from '@/data/mockData';
+import { getActivity, getDestination, getDestinationActivities } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useState, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
@@ -23,7 +32,7 @@ export default function NewDiaryEntry() {
   const [photo, setPhoto] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  if (!diary) return <AppLayout><div className="p-12 text-center text-muted-foreground">Diary not found.</div></AppLayout>;
+  if (!diary) return <AppLayout><div className="p-12 text-center text-muted-foreground">Diário não encontrado.</div></AppLayout>;
 
   const itinerary = itineraries.find(i => i.id === diary.itineraryId);
   const dayActivities = itinerary?.days.find(d => d.dayNumber === dayNumber)?.activityIds.map(aid => getActivity(aid)).filter(Boolean) || [];
@@ -32,8 +41,8 @@ export default function NewDiaryEntry() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!activityId) e.activityId = 'Select an activity';
-    if (text.trim().length < 10) e.text = 'Write at least 10 characters';
+    if (!activityId) e.activityId = 'Selecione uma atividade';
+    if (text.trim().length < 10) e.text = 'Escreva pelo menos 10 caracteres';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -50,7 +59,7 @@ export default function NewDiaryEntry() {
       photo: photo || undefined,
       timestamp: new Date().toISOString(),
     });
-    toast.success('Entry added to your diary!');
+    toast.success('Entrada adicionada ao seu diário!');
     navigate(`/diary/${id}`);
   };
 
@@ -58,12 +67,31 @@ export default function NewDiaryEntry() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-lg mx-auto px-4 py-12">
-          <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">New entry</span>
-          <h1 className="font-display text-3xl font-semibold mb-8">Write a Memory</h1>
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/diaries">Diários</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to={`/diary/${id}`}>{getDestination(diary.destinationId)?.name ?? 'Diário'}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Novo registro</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+          <PageHeader label="Nova entrada" title="Registre uma memória" size="lg" titleClassName="mb-8" />
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Day</Label>
+              <Label className="font-body text-sm font-medium">Dia</Label>
               <div className="flex gap-2 flex-wrap">
                 {(itinerary?.days || [{ dayNumber: 1 }]).map(day => (
                   <button
@@ -74,14 +102,14 @@ export default function NewDiaryEntry() {
                       dayNumber === day.dayNumber ? 'bg-primary text-primary-foreground' : 'bg-surface hover:bg-surface/80'
                     }`}
                   >
-                    Day {day.dayNumber}
+                    Dia {day.dayNumber}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Activity</Label>
+              <Label className="font-body text-sm font-medium">Atividade</Label>
               <div className="space-y-1 max-h-48 overflow-y-auto">
                 {availableActivities.map(act => act && (
                   <button
@@ -100,18 +128,18 @@ export default function NewDiaryEntry() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Your Memory</Label>
+              <Label className="font-body text-sm font-medium">Sua memória</Label>
               <Textarea
                 value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder="Write about your experience..."
+                placeholder="Escreva sobre sua experiência..."
                 className="min-h-[120px] bg-transparent border border-border focus-visible:border-primary"
               />
               {errors.text && <p className="text-xs text-destructive">{errors.text}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-body text-sm font-medium">Photo</Label>
+              <Label className="font-body text-sm font-medium">Foto</Label>
               <input
                 ref={fileRef}
                 type="file"
@@ -129,11 +157,11 @@ export default function NewDiaryEntry() {
                   className="w-full flex items-center justify-center gap-2 py-6 border-2 border-dashed border-border rounded-xl text-sm font-body text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                 >
                   <Upload className="h-4 w-4" />
-                  Choose a photo
+                  Escolher uma foto
                 </button>
               ) : (
                 <div className="relative">
-                  <img src={photo} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+                  <img src={photo} alt="Pré-visualização" className="w-full h-40 object-cover rounded-xl" />
                   <button
                     type="button"
                     onClick={() => { setPhoto(''); if (fileRef.current) fileRef.current.value = ''; }}
@@ -145,9 +173,19 @@ export default function NewDiaryEntry() {
               )}
             </div>
 
-            <Button type="submit" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-              Save Entry
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(`/diary/${id}`)}
+                className="rounded-full"
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
+                Salvar entrada
+              </Button>
+            </div>
           </form>
         </div>
       </PageTransition>

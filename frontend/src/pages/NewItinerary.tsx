@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import { destinoApi, roteiroApi } from '@/services/api';
@@ -41,12 +42,12 @@ export default function NewItinerary() {
     setErrors(prev => {
       const e = { ...prev };
       if (departure < today) {
-        e.departure = 'Departure must be in the future';
+        e.departure = 'A data de ida deve ser no futuro';
       } else {
         delete e.departure;
       }
       if (returnDate && returnDate <= departure) {
-        e.returnDate = 'Return must be after departure';
+        e.returnDate = 'A data de volta deve ser após a de ida';
       } else if (returnDate) {
         delete e.returnDate;
       }
@@ -80,11 +81,11 @@ export default function NewItinerary() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!destId) e.destId = 'Select a destination';
-    if (!departure) e.departure = 'Select departure date';
-    if (!returnDate) e.returnDate = 'Select return date';
-    if (departure && departure < today) e.departure = 'Departure must be in the future';
-    if (departure && returnDate && returnDate <= departure) e.returnDate = 'Return must be after departure';
+    if (!destId) e.destId = 'Selecione um destino';
+    if (!departure) e.departure = 'Selecione a data de ida';
+    if (!returnDate) e.returnDate = 'Selecione a data de volta';
+    if (departure && departure < today) e.departure = 'A data de ida deve ser no futuro';
+    if (departure && returnDate && returnDate <= departure) e.returnDate = 'A data de volta deve ser após a de ida';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -127,7 +128,7 @@ export default function NewItinerary() {
         createdAt: new Date().toISOString(),
       });
 
-      toast.success('Itinerary created! Start adding activities.');
+      toast.success('Roteiro criado! Comece a adicionar atividades.');
       navigate(`/itinerary/${localId}/edit`);
     } catch {
       toast.error('Erro ao salvar roteiro. Tente novamente.');
@@ -152,22 +153,21 @@ export default function NewItinerary() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-lg mx-auto px-4 py-12">
-          <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">New trip</span>
-          <h1 className="font-display text-3xl font-semibold mb-2">Create Itinerary</h1>
+          <PageHeader label="Nova viagem" title="Criar Roteiro" size="lg" titleClassName="mb-2" />
           {!loading && (
             <p className="font-body text-sm text-muted-foreground mb-8">
               {destinos.length < 19
-                ? 'Showing your saved destinations'
-                : 'Save destinations in Matches to filter this list'}
+                ? 'Mostrando seus destinos salvos'
+                : 'Salve destinos em Combinações para filtrar esta lista'}
             </p>
           )}
 
           {loading ? (
-            <p className="font-body text-sm text-muted-foreground">Loading destinations...</p>
+            <p className="font-body text-sm text-muted-foreground">Carregando destinos...</p>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-1.5">
-                <Label className="font-body text-sm font-medium">Destination</Label>
+                <Label className="font-body text-sm font-medium">Destino</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {destinos.map(d => (
                     <button
@@ -190,7 +190,7 @@ export default function NewItinerary() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="font-body text-sm font-medium">Departure</Label>
+                  <Label className="font-body text-sm font-medium">Ida</Label>
                   <Input
                     type="date"
                     value={departure}
@@ -205,7 +205,7 @@ export default function NewItinerary() {
                   {errors.departure && <p className="text-xs text-destructive">{errors.departure}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="font-body text-sm font-medium">Return</Label>
+                  <Label className="font-body text-sm font-medium">Volta</Label>
                   <Input
                     type="date"
                     value={returnDate}
@@ -220,9 +220,9 @@ export default function NewItinerary() {
               {diasPreview.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="font-body text-sm font-medium">Trip days</Label>
+                    <Label className="font-body text-sm font-medium">Dias da viagem</Label>
                     <span className="font-body text-xs text-muted-foreground">
-                      {diasPreview.length} {diasPreview.length === 1 ? 'day' : 'days'}
+                      {diasPreview.length} {diasPreview.length === 1 ? 'dia' : 'dias'}
                     </span>
                   </div>
                   <div className="rounded-lg border border-border overflow-hidden max-h-52 overflow-y-auto">
@@ -234,7 +234,7 @@ export default function NewItinerary() {
                         }`}
                       >
                         <span className="font-body text-xs text-muted-foreground w-10 shrink-0">
-                          Day {d.dayNumber}
+                          Dia {d.dayNumber}
                         </span>
                         <span className="font-body text-sm capitalize">{formatarData(d.iso)}</span>
                       </div>
@@ -243,17 +243,27 @@ export default function NewItinerary() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                {submitting
-                  ? 'Saving...'
-                  : diasPreview.length > 0
-                    ? `Create ${diasPreview.length}-day Itinerary`
-                    : 'Create Itinerary'}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/itineraries')}
+                  className="rounded-full"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                  {submitting
+                    ? 'Salvando...'
+                    : diasPreview.length > 0
+                      ? `Criar roteiro de ${diasPreview.length} ${diasPreview.length === 1 ? 'dia' : 'dias'}`
+                      : 'Criar Roteiro'}
+                </Button>
+              </div>
             </form>
           )}
         </div>

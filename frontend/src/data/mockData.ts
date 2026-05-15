@@ -44,8 +44,4 @@ export function getDestination(id: string) {
   return destinations.find(d => d.id === id);
 }
 
-export function calculateMatch(userTags: string[], destTags: string[]): number {
-  if (userTags.length === 0) return Math.floor(Math.random() * 30 + 60);
-  const matches = destTags.filter(t => userTags.includes(t)).length;
-  return Math.min(100, Math.floor((matches / Math.max(destTags.length, userTags.length)) * 100 + 30));
-}
+export { calculateMatch } from '@/lib/matchUtils';

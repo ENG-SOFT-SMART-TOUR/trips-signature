@@ -19,54 +19,56 @@ type HoverAnim = {
   transition?: { duration?: number; repeat?: number; repeatType?: string; ease?: string };
 };
 
+// Option `tag` is the canonical English value sent to the backend (matches the
+// tags seeded for destinos). `label` is the localised display text.
 const questions = [
   {
     key: 'landscape',
-    title: 'Where do you feel most alive?',
+    title: 'Onde você se sente mais vivo?',
     options: [
-      { label: 'Beach', icon: Waves, hoverAnim: { y: [0, -3, 0, 2, 0], transition: { duration: 1.2, repeat: Infinity } } },
-      { label: 'Mountains', icon: Mountain, hoverAnim: { y: -4, transition: { duration: 0.4 } } },
-      { label: 'City', icon: Building2, hoverAnim: { scale: 1.1, transition: { duration: 0.3 } } },
-      { label: 'Countryside', icon: TreePine, hoverAnim: { rotate: [0, -3, 3, 0], transition: { duration: 1, repeat: Infinity } } },
+      { label: 'Praia', tag: 'Beach', icon: Waves, hoverAnim: { y: [0, -3, 0, 2, 0], transition: { duration: 1.2, repeat: Infinity } } },
+      { label: 'Montanhas', tag: 'Mountains', icon: Mountain, hoverAnim: { y: -4, transition: { duration: 0.4 } } },
+      { label: 'Cidade', tag: 'City', icon: Building2, hoverAnim: { scale: 1.1, transition: { duration: 0.3 } } },
+      { label: 'Campo', tag: 'Countryside', icon: TreePine, hoverAnim: { rotate: [0, -3, 3, 0], transition: { duration: 1, repeat: Infinity } } },
     ],
   },
   {
     key: 'style',
-    title: 'What moves your soul?',
+    title: 'O que move sua alma?',
     options: [
-      { label: 'Adventure', icon: Compass, hoverAnim: { rotate: 360, transition: { duration: 1.5, repeat: Infinity, ease: 'linear' } } },
-      { label: 'Culture', icon: Landmark, hoverAnim: { scale: [1, 1.08, 1], transition: { duration: 1.2, repeat: Infinity } } },
-      { label: 'Relaxation', icon: Palmtree, hoverAnim: { rotate: [0, -5, 5, -2, 0], transition: { duration: 1.5, repeat: Infinity } } },
-      { label: 'Gastronomy', icon: UtensilsCrossed, hoverAnim: { y: [0, -4, 0], transition: { duration: 0.6, repeat: Infinity } } },
+      { label: 'Aventura', tag: 'Adventure', icon: Compass, hoverAnim: { rotate: 360, transition: { duration: 1.5, repeat: Infinity, ease: 'linear' } } },
+      { label: 'Cultura', tag: 'Culture', icon: Landmark, hoverAnim: { scale: [1, 1.08, 1], transition: { duration: 1.2, repeat: Infinity } } },
+      { label: 'Relaxamento', tag: 'Relaxation', icon: Palmtree, hoverAnim: { rotate: [0, -5, 5, -2, 0], transition: { duration: 1.5, repeat: Infinity } } },
+      { label: 'Gastronomia', tag: 'Gastronomy', icon: UtensilsCrossed, hoverAnim: { y: [0, -4, 0], transition: { duration: 0.6, repeat: Infinity } } },
     ],
   },
   {
     key: 'budget',
-    title: 'Your comfort zone?',
+    title: 'Sua zona de conforto?',
     options: [
-      { label: 'Budget', icon: Wallet, hoverAnim: { scaleX: [1, 0.9, 1], transition: { duration: 0.5, repeat: Infinity } } },
-      { label: 'Moderate', icon: BadgeDollarSign, hoverAnim: { y: [0, -3, 0], transition: { duration: 0.7, repeat: Infinity } } },
-      { label: 'Comfortable', icon: CreditCard, hoverAnim: { x: [0, 3, 0], transition: { duration: 0.8, repeat: Infinity } } },
-      { label: 'Luxury', icon: Gem, hoverAnim: { scale: [1, 1.12, 1], transition: { duration: 1, repeat: Infinity } } },
+      { label: 'Econômico', tag: 'Budget', icon: Wallet, hoverAnim: { scaleX: [1, 0.9, 1], transition: { duration: 0.5, repeat: Infinity } } },
+      { label: 'Moderado', tag: 'Moderate', icon: BadgeDollarSign, hoverAnim: { y: [0, -3, 0], transition: { duration: 0.7, repeat: Infinity } } },
+      { label: 'Confortável', tag: 'Comfortable', icon: CreditCard, hoverAnim: { x: [0, 3, 0], transition: { duration: 0.8, repeat: Infinity } } },
+      { label: 'Luxo', tag: 'Luxury', icon: Gem, hoverAnim: { scale: [1, 1.12, 1], transition: { duration: 1, repeat: Infinity } } },
     ],
   },
   {
     key: 'companion',
-    title: 'Who shares the journey?',
+    title: 'Quem compartilha a jornada?',
     options: [
-      { label: 'Solo', icon: User, hoverAnim: { y: -3, transition: { duration: 0.4 } } },
-      { label: 'Couple', icon: Heart, hoverAnim: { scale: [1, 1.15, 1, 1.1, 1], transition: { duration: 0.8, repeat: Infinity } } },
-      { label: 'Family', icon: Users, hoverAnim: { scale: 1.05, transition: { duration: 0.3 } } },
-      { label: 'Friends', icon: UserPlus, hoverAnim: { y: [0, -5, 0], transition: { duration: 0.5, repeat: Infinity } } },
+      { label: 'Sozinho', tag: 'Solo', icon: User, hoverAnim: { y: -3, transition: { duration: 0.4 } } },
+      { label: 'Casal', tag: 'Couple', icon: Heart, hoverAnim: { scale: [1, 1.15, 1, 1.1, 1], transition: { duration: 0.8, repeat: Infinity } } },
+      { label: 'Família', tag: 'Family', icon: Users, hoverAnim: { scale: 1.05, transition: { duration: 0.3 } } },
+      { label: 'Amigos', tag: 'Friends', icon: UserPlus, hoverAnim: { y: [0, -5, 0], transition: { duration: 0.5, repeat: Infinity } } },
     ],
   },
   {
     key: 'pace',
-    title: 'Your rhythm of discovery?',
+    title: 'Seu ritmo de descoberta?',
     options: [
-      { label: 'Slow & deep', icon: Snail, hoverAnim: { x: [0, 4, 0], transition: { duration: 1.2, repeat: Infinity } } },
-      { label: 'Balanced', icon: Scale, hoverAnim: { rotate: [0, -5, 5, 0], transition: { duration: 1, repeat: Infinity } } },
-      { label: 'Fast & packed', icon: Zap, hoverAnim: { opacity: [1, 0.5, 1], transition: { duration: 0.4, repeat: Infinity } } },
+      { label: 'Lento e profundo', tag: 'Slow & deep', icon: Snail, hoverAnim: { x: [0, 4, 0], transition: { duration: 1.2, repeat: Infinity } } },
+      { label: 'Equilibrado', tag: 'Balanced', icon: Scale, hoverAnim: { rotate: [0, -5, 5, 0], transition: { duration: 1, repeat: Infinity } } },
+      { label: 'Rápido e intenso', tag: 'Fast & packed', icon: Zap, hoverAnim: { opacity: [1, 0.5, 1], transition: { duration: 0.4, repeat: Infinity } } },
     ],
   },
 ];
@@ -92,14 +94,14 @@ export default function Quiz() {
       }
       setQuizAnswers(finalAnswers);
       if (isRetake) {
-        toast.success('Profile updated!');
+        toast.success('Perfil atualizado!');
         navigate('/dashboard');
       } else {
-        toast.success('Profile created! Here are your matches.');
+        toast.success('Perfil criado! Aqui estão suas combinações.');
         navigate('/matches');
       }
     } catch {
-      toast.error('Failed to save profile. Please try again.');
+      toast.error('Falha ao salvar o perfil. Tente novamente.');
     }
   };
 
@@ -120,7 +122,7 @@ export default function Quiz() {
 
   const next = () => {
     if (!answers[current.key as keyof QuizAnswers]) {
-      toast.error('Please select an option');
+      toast.error('Selecione uma opção');
       return;
     }
     if (step < questions.length - 1) {
@@ -144,7 +146,7 @@ export default function Quiz() {
         <div className="w-full max-w-xl">
           <div className="mb-10">
             <span className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-2 block">
-              Step {step + 1} of {questions.length}
+              Etapa {step + 1} de {questions.length}
             </span>
             <Progress value={progress} className="h-1 bg-surface [&>div]:bg-primary" />
           </div>
@@ -163,12 +165,12 @@ export default function Quiz() {
               </h2>
               <div className="flex flex-col gap-3">
                 {current.options.map(opt => {
-                  const selected = answers[current.key as keyof QuizAnswers] === opt.label;
+                  const selected = answers[current.key as keyof QuizAnswers] === opt.tag;
                   const Icon = opt.icon;
                   return (
                     <motion.button
-                      key={opt.label}
-                      onClick={() => select(opt.label)}
+                      key={opt.tag}
+                      onClick={() => select(opt.tag)}
                       className={`group relative flex items-center justify-between gap-4 px-6 py-5 rounded-xl font-body text-sm font-medium transition-colors duration-200 cursor-pointer ${
                         selected
                           ? 'bg-primary text-primary-foreground'
@@ -180,7 +182,7 @@ export default function Quiz() {
                         <span className="text-sm md:text-base">{opt.label}</span>
                       </div>
                       <motion.div
-                        whileHover={opt.hoverAnim as any}
+                        whileHover={opt.hoverAnim as HoverAnim}
                       >
                         <Icon
                           className={`h-6 w-6 transition-colors duration-200 ${
@@ -203,10 +205,10 @@ export default function Quiz() {
               disabled={step === 0}
               className="rounded-full"
             >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back
+              <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </Button>
             <Button onClick={next} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-              {step === questions.length - 1 ? 'See Matches' : 'Next'} <ChevronRight className="h-4 w-4 ml-1" />
+              {step === questions.length - 1 ? 'Ver combinações' : 'Próxima'} <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
