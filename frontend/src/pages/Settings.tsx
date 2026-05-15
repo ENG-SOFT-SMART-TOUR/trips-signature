@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
+import { destinoApi } from '@/services/api';
 import AppLayout from '@/components/AppLayout';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,18 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 export default function Settings() {
-  const { user, savedDestinations, logout, updateProfile, resetQuiz } = useStore();
+  const { user, logout, updateProfile, resetQuiz } = useStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [savedCount, setSavedCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    destinoApi.listarSalvos(user.id)
+      .then(res => setSavedCount(res.data.length))
+      .catch(() => {});
+  }, [user]);
 
   const handleSave = () => {
     if (!name.trim() || !email.trim()) {
@@ -92,21 +101,27 @@ export default function Settings() {
               Refazer quiz
             </Button>
           </div>
-          {user?.quizAnswers && Object.keys(user.quizAnswers).length > 0 ? (
-            <div className="space-y-3">
-              {Object.entries(user.quizAnswers).map(([key, value]) =>
-                value ? (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-sm font-body text-muted-foreground">
-                      {quizLabels[key] || key}
-                    </span>
-                    <Badge variant="secondary" className="capitalize">
-                      {value}
-                    </Badge>
-                  </div>
-                ) : null
-              )}
-            </div>
+          {user?.quizCompleto ? (
+            Object.keys(user.quizAnswers ?? {}).length > 0 ? (
+              <div className="space-y-3">
+                {Object.entries(user.quizAnswers).map(([key, value]) =>
+                  value ? (
+                    <div key={key} className="flex items-center justify-between">
+                      <span className="text-sm font-body text-muted-foreground">
+                        {quizLabels[key] || key}
+                      </span>
+                      <Badge variant="secondary" className="capitalize">
+                        {value}
+                      </Badge>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            ) : (
+              <p className="text-sm font-body text-muted-foreground">
+                Quiz completed! Retake to update your travel profile.
+              </p>
+            )
           ) : (
             <p className="text-sm font-body text-muted-foreground">
               Você ainda não respondeu o quiz. Faça-o para descobrir seu perfil de viajante!
@@ -125,7 +140,7 @@ export default function Settings() {
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span className="text-sm font-body">
-              {savedDestinations.length} {savedDestinations.length === 1 ? 'destino salvo' : 'destinos salvos'}
+              {savedCount} {savedCount === 1 ? 'destino salvo' : 'destinos salvos'}
             </span>
           </div>
         </motion.section>

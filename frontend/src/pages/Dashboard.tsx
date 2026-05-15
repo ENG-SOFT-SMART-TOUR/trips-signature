@@ -7,8 +7,8 @@ import { motion } from 'framer-motion';
 import PageHeader from '@/components/PageHeader';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
-import { destinoApi } from '@/services/api';
-import type { Destino } from '@/types/index';
+import { destinoApi, roteiroApi } from '@/services/api';
+import type { Destino, Roteiro } from '@/types/index';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -37,19 +37,23 @@ function StatCard({ icon, value, label, delay }: StatCardProps) {
 }
 
 export default function Dashboard() {
-  const { user, itineraries, diaries } = useStore();
+  const { user, diaries } = useStore();
   const navigate = useNavigate();
 
   const [savedDestinos, setSavedDestinos] = useState<Destino[]>([]);
+  const [roteiros, setRoteiros] = useState<Roteiro[]>([]);
 
   useEffect(() => {
     if (!user) return;
     destinoApi.listarSalvos(user.id)
       .then(res => setSavedDestinos(res.data))
       .catch(() => {});
+    roteiroApi.listarPorUsuario(user.id)
+      .then(res => setRoteiros(res.data))
+      .catch(() => {});
   }, [user]);
 
-  const totalDays = itineraries.reduce((sum, it) => sum + it.days.length, 0);
+  const totalDays = roteiros.reduce((sum, r) => sum + r.totalDias, 0);
   const totalEntries = diaries.reduce((sum, d) => sum + d.entries.length, 0);
 
   return (
@@ -68,7 +72,7 @@ export default function Dashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
             <StatCard icon={<Heart className="h-5 w-5 text-primary" />} value={savedDestinos.length} label="Destinos salvos" delay={0.1} />
-            <StatCard icon={<Map className="h-5 w-5 text-primary" />} value={itineraries.length} label="Roteiros" delay={0.2} />
+            <StatCard icon={<Map className="h-5 w-5 text-primary" />} value={roteiros.length} label="Roteiros" delay={0.2} />
             <StatCard icon={<Calendar className="h-5 w-5 text-primary" />} value={totalDays} label="Dias planejados" delay={0.3} />
             <StatCard icon={<BookOpen className="h-5 w-5 text-primary" />} value={totalEntries} label="Entradas no diário" delay={0.4} />
           </div>

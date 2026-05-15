@@ -23,7 +23,7 @@ import type { Roteiro, Atividade } from '@/types/index';
 export default function DayPreview() {
   const { id, dayNumber } = useParams<{ id: string; dayNumber: string }>();
   const navigate = useNavigate();
-  const { itineraries, updateItinerary, user } = useStore();
+  const { itineraries, updateItinerary, addItinerary, user } = useStore();
 
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
@@ -48,12 +48,24 @@ export default function DayPreview() {
           if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
           actsByDay[ra.diaNumero].push(String(ra.atividadeId));
         }
+        const dep = new Date(res.data.dataIda + 'T00:00:00');
+        const days = Array.from({ length: res.data.totalDias }, (_, i) => {
+          const date = new Date(dep);
+          date.setDate(date.getDate() + i);
+          const iso = date.toISOString().split('T')[0];
+          return { dayNumber: i + 1, date: iso, activityIds: actsByDay[i + 1] ?? [] };
+        });
         if (itinerary) {
-          const updatedDays = itinerary.days.map(d => ({
-            ...d,
-            activityIds: actsByDay[d.dayNumber] ?? [],
-          }));
-          updateItinerary(itinerary.id, updatedDays);
+          updateItinerary(itinerary.id, days);
+        } else {
+          addItinerary({
+            id: String(numId),
+            destinationId: String(res.data.destino.id),
+            departureDate: res.data.dataIda,
+            returnDate: res.data.dataVolta,
+            days,
+            createdAt: new Date().toISOString(),
+          });
         }
       })
       .catch(() => {});

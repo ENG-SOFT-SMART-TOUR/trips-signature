@@ -11,22 +11,41 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Clock, MapPin, Lightbulb, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useStore } from '@/store/useStore';
+import { roteiroApi } from '@/services/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { getDestination } from '@/data/mockData';
+import type { Roteiro } from '@/types/index';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 
 export default function ActivityDetail() {
   const { id } = useParams<{ id: string }>();
   const activity = getActivity(id || '');
-  const { itineraries, updateItinerary } = useStore();
+  const { itineraries, updateItinerary, user } = useStore();
   const [imgIdx, setImgIdx] = useState(0);
   const [addOpen, setAddOpen] = useState(false);
   const [selectedIt, setSelectedIt] = useState('');
   const [selectedDay, setSelectedDay] = useState(0);
+  const [roteiros, setRoteiros] = useState<Roteiro[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    roteiroApi.listarPorUsuario(user.id)
+      .then(res => setRoteiros(res.data))
+      .catch(() => {});
+  }, [user]);
+
+  const listaItinerarios = itineraries.length > 0 ? itineraries : roteiros.map(r => ({
+    id: String(r.id),
+    destinationId: String(r.destino.id),
+    departureDate: r.dataIda,
+    returnDate: r.dataVolta,
+    days: Array.from({ length: r.totalDias }, (_, i) => ({ dayNumber: i + 1, date: '', activityIds: [] })),
+    createdAt: '',
+  }));
 
   if (!activity) return <AppLayout><div className="p-12 text-center text-muted-foreground">Atividade não encontrada.</div></AppLayout>;
 
@@ -147,14 +166,14 @@ export default function ActivityDetail() {
             <DialogHeader>
               <DialogTitle className="font-display">Adicionar ao roteiro</DialogTitle>
             </DialogHeader>
-            {itineraries.length === 0 ? (
+            {listaItinerarios.length === 0 ? (
               <p className="text-sm text-muted-foreground">Você ainda não tem roteiros. Crie um primeiro.</p>
             ) : (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="font-body text-sm font-medium">Selecionar roteiro</label>
                   <div className="space-y-1">
-                    {itineraries.map(it => {
+                    {listaItinerarios.map(it => {
                       const d = getDestination(it.destinationId);
                       return (
                         <button
@@ -174,7 +193,7 @@ export default function ActivityDetail() {
                   <div className="space-y-2">
                     <label className="font-body text-sm font-medium">Selecionar dia</label>
                     <div className="grid grid-cols-4 gap-2">
-                      {itineraries.find(i => i.id === selectedIt)?.days.map((day, i) => (
+                      {listaItinerarios.find(i => i.id === selectedIt)?.days.map((day, i) => (
                         <button
                           key={day.dayNumber}
                           onClick={() => setSelectedDay(i)}
