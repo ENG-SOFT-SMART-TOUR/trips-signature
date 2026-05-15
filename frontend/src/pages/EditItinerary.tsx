@@ -123,8 +123,9 @@ export default function EditItinerary() {
         i === selectedDay ? { ...d, activityIds: [...d.activityIds, String(act.id)] } : d
       ));
       toast.success('Atividade adicionada');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Erro ao adicionar atividade');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg ?? 'Erro ao adicionar atividade');
     }
   };
 
@@ -136,8 +137,9 @@ export default function EditItinerary() {
         i === selectedDay ? { ...d, activityIds: d.activityIds.filter(a => a !== actId) } : d
       ));
       toast('Atividade removida');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Erro ao remover atividade');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg ?? 'Erro ao remover atividade');
     }
   };
 

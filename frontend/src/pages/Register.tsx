@@ -40,8 +40,9 @@ export default function Register() {
       login(data.email, data.nome, data.id, data.quizCompleto);
       toast.success('Welcome aboard! Let\'s discover your travel style.');
       navigate('/quiz');
-    } catch (err: any) {
-      const msg = err.response?.status === 409
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      const msg = status === 409
         ? 'This email is already registered'
         : 'Registration failed. Please try again.';
       toast.error(msg);
