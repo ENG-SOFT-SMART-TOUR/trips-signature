@@ -6,7 +6,6 @@ import com.signaturetrips.api.domain.entity.Usuario;
 import com.signaturetrips.api.domain.repository.DestinoRepository;
 import com.signaturetrips.api.domain.repository.RoteiroRepository;
 import com.signaturetrips.api.domain.repository.UsuarioRepository;
-import com.signaturetrips.api.dto.DestinoResponse;
 import com.signaturetrips.api.dto.RoteiroRequest;
 import com.signaturetrips.api.dto.RoteiroResponse;
 import org.springframework.http.HttpStatus;
@@ -50,14 +49,14 @@ public class RoteiroService {
         roteiro.setDataVolta(request.dataVolta());
 
         Roteiro salvo = roteiroRepository.save(roteiro);
-        return toResponse(salvo, destino);
+        return RoteiroResponse.from(salvo);
     }
 
     @Transactional(readOnly = true)
     public RoteiroResponse buscarPorId(Long id) {
         Roteiro roteiro = roteiroRepository.findWithAssociacoesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Roteiro não encontrado"));
-        return toResponse(roteiro, roteiro.getDestino());
+        return RoteiroResponse.from(roteiro);
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +64,7 @@ public class RoteiroService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         return roteiroRepository.findByUsuarioOrderByCriadoEmDesc(usuario).stream()
-                .map(r -> toResponse(r, r.getDestino()))
+                .map(RoteiroResponse::from)
                 .toList();
     }
 
@@ -79,9 +78,5 @@ public class RoteiroService {
         }
 
         roteiroRepository.delete(roteiro);
-    }
-
-    private RoteiroResponse toResponse(Roteiro r, Destino d) {
-        return new RoteiroResponse(r.getId(), DestinoResponse.from(d), r.getDataIda(), r.getDataVolta(), r.calcularTotalDias(), r.getCriadoEm());
     }
 }

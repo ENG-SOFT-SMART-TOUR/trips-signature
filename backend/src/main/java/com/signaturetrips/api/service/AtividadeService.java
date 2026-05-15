@@ -31,15 +31,7 @@ public class AtividadeService {
                 ? atividadeRepository.findByDestinoId(destinoId)
                 : atividadeRepository.findByDestinoIdAndTurnoIgnoreCase(destinoId, turno.trim());
         return atividades.stream()
-                .map(this::toResponse)
+                .map(AtividadeResponse::from)
                 .toList();
-    }
-
-    private AtividadeResponse toResponse(Atividade a) {
-        return new AtividadeResponse(
-                a.getId(), a.getNome(), a.getCategoria(),
-                a.getDuracao(), a.getTurno(), a.getDescricao(),
-                a.getFoto(), a.getLatitude(), a.getLongitude()
-        );
     }
 }

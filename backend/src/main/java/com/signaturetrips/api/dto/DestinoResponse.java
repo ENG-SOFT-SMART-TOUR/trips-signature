@@ -13,7 +13,15 @@ public record DestinoResponse(
         String categoria,
         Set<String> tags
 ) {
-    public static DestinoResponse from(Destino d) {
-        return new DestinoResponse(d.getId(), d.getNome(), d.getDescricao(), d.getFoto(), d.getPais(), d.getCategoria(), d.getTags());
+    public static DestinoResponse from(Destino destino) {
+        return new DestinoResponse(
+                destino.getId(),
+                destino.getNome(),
+                destino.getDescricao(),
+                destino.getFoto(),
+                destino.getPais(),
+                destino.getCategoria(),
+                destino.getTags()
+        );
     }
 }

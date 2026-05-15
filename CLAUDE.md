@@ -98,8 +98,8 @@ trips-signature/
 │       │   ├── DestinoController     (/api/destinos/*)
 │       │   ├── RoteiroController     (/api/roteiros/* — incl. roteiro-atividade endpoints)
 │       │   └── AtividadeController   (/api/atividades/*)
-│       ├── data/
-│       │   └── QuizData              (5 hardcoded quiz questions as a constant)
+│       ├── constant/
+│       │   └── QuizConstants         (5 hardcoded quiz questions as a constant)
 │       ├── domain/
 │       │   ├── entity/
 │       │   │   ├── Usuario, Destino, DestinoSalvo
@@ -113,14 +113,13 @@ trips-signature/
 │       │       └── RoteiroAtividadeRepository (@EntityGraph, count/find by day)
 │       ├── dto/ (Java Records with Jakarta Validation)
 │       │   ├── CadastroRequest, LoginRequest, LoginResponse
-│       │   ├── DestinoResponse       (has static factory from(Destino))
-│       │   ├── RoteiroRequest, RoteiroResponse
-│       │   ├── QuizRequest, PerguntaDto, OpcaoDto
-│       │   ├── AtividadeResponse
-│       │   └── RoteiroAtividadeRequest, RoteiroAtividadeResponse
+│       │   ├── DestinoResponse, RoteiroResponse, AtividadeResponse,
+│       │   │   RoteiroAtividadeResponse  (every Response DTO has a static from(Entity) factory)
+│       │   ├── RoteiroRequest, QuizRequest, RoteiroAtividadeRequest
+│       │   └── PerguntaDto, OpcaoDto
 │       └── service/
 │           ├── AuthService           (BCryptPasswordEncoder injected via constructor)
-│           ├── QuizService           (serves QuizData, saves user profile/tags)
+│           ├── QuizService           (serves QuizConstants, saves user profile/tags)
 │           ├── DestinoService
 │           ├── RoteiroService
 │           ├── AtividadeService      (lists activities by destination)
@@ -179,8 +178,8 @@ cd backend
 ### Important Notes
 - **DDL**: `ddl-auto=update` in `application.properties`
 - **Port**: backend 8080; DB host port 5433
-- **CORS**: `CorsConfig` allows `http://localhost:5173` (hardcoded — update for production)
-- **Business rule config**: `roteiro.max-atividades-por-dia=5` in `application.properties`
+- **CORS**: origins come from `app.cors.allowed-origins` in `application.properties` (comma-separated), read by `CorsConfig` via `@Value`
+- **Business rule config**: `roteiro.max-atividades-por-dia=5` in `application.properties` (injected into `RoteiroAtividadeService` via constructor)
 
 ---
 
@@ -292,19 +291,23 @@ changing it to `error` silently breaks every error toast.
 1. **Tags as ElementCollection**: `Usuario` and `Destino` use `Set<String>` with `@ElementCollection`
    (auto-creates `usuario_tags` / `destino_tags`). Don't create separate entities.
 2. **BCryptPasswordEncoder**: singleton bean in `config/AppConfig`, injected via constructor.
-3. **`DestinoResponse.from(Destino)`**: static factory on the DTO does entity→DTO mapping. Note this
-   couples the DTO to the entity — acceptable for now, but a dedicated mapper would be cleaner if the
-   project grows.
+3. **Entity→DTO mapping — uniform pattern**: every Response DTO exposes a `public static X from(Entity)`
+   static factory (`DestinoResponse.from`, `RoteiroResponse.from`, `AtividadeResponse.from`,
+   `RoteiroAtividadeResponse.from`). Services **never** build DTOs with `new` — always call `.from()`.
+   The DTO importing the entity is an accepted trade-off for this project's size.
 4. **`Roteiro.calcularTotalDias()`**: day count lives on the entity (rich domain model). It does not
    guard against null/inverted dates — `RoteiroService.criar()` validates the date order on input.
 5. **RF5 ownership**: `RoteiroAtividadeService` validates that the roteiro belongs to the `usuarioId`
    before any add/remove/list. Endpoints take `usuarioId` as a query param.
 6. **5-activities-per-day limit**: enforced in `RoteiroAtividadeService.validarLimitePorDia` (config:
-   `roteiro.max-atividades-por-dia`). It is a read-then-write check — there is no DB-level guard, so
-   it can be raced under heavy concurrency (acceptable for current scale).
-7. **Quiz is hardcoded**: `data/QuizData` holds the 5 questions as a constant. Changing the quiz =
-   code change.
-8. **ResponseStatusException**: used everywhere instead of custom exception classes.
+   `roteiro.max-atividades-por-dia`, injected via constructor). `adicionar()` loads the roteiro with a
+   `PESSIMISTIC_WRITE` lock (`findByIdForUpdate`), so concurrent inserts on the same roteiro serialise.
+7. **Quiz is hardcoded**: `constant/QuizConstants` holds the 5 questions as a constant. Changing the
+   quiz = code change.
+8. **ResponseStatusException**: used everywhere instead of custom exception classes. Business
+   validations live as private methods inside the services (not a separate validator layer).
+9. **Constructor injection everywhere**: no field `@Autowired`, no `@Value` on fields — config values
+   are constructor parameters annotated with `@Value`.
 
 ### Frontend
 1. **API proxy**: `/api/*` is proxied by Vite to `:8080`. Never hardcode localhost.
@@ -333,8 +336,13 @@ changing it to `error` silently breaks every error toast.
 ```bash
 cd backend && ./mvnw test
 ```
-Unit tests live in `src/test/java/.../` and mock repositories — no Spring context, no DB:
+Unit tests live in `src/test/java/.../` and mock repositories — no Spring context, no DB
+(37 tests total):
 - `AuthServiceTest` — cadastro (duplicate email) + login flows
+- `DestinoServiceTest` — listar, listarSalvos, salvar (dup/new), remover
+- `RoteiroServiceTest` — criar (date rules, not-found, happy path), buscar, deletar (ownership)
+- `QuizServiceTest` — getPerguntas, salvarPerfil (not-found + tag replacement)
+- `AtividadeServiceTest` — listarPorDestino with/without/blank turno filter
 - `RoteiroAtividadeServiceTest` — ownership (403), 5/day limit, invalid day, duplicate, happy path
 - `RoteiroTest` — `calcularTotalDias()` (inclusive day count, cross-month)
 
@@ -377,5 +385,7 @@ view → day preview.
 - **Organization**: ENG-SOFT-SMART-TOUR
 - **Jira project key**: YGG
 
-Last updated: May 2026 (Sprint 3 — post-merge fixes: DB port 5433 + credentials, RF5 ownership
+Last updated: May 2026 (Sprint 3 — backend SOLID uniformization: static `from()` factories on all
+Response DTOs, constructor injection for config, CORS externalized, `data/` → `constant/`, unit
+tests for all services. Earlier in the sprint — post-merge fixes: DB port 5433 + credentials, RF5 ownership
 checks, unified error-response key, EditItinerary API hydration; unit tests added).

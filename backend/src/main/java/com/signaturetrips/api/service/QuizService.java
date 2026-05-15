@@ -1,6 +1,6 @@
 package com.signaturetrips.api.service;
 
-import com.signaturetrips.api.data.QuizData;
+import com.signaturetrips.api.constant.QuizConstants;
 import com.signaturetrips.api.dto.PerguntaDto;
 import com.signaturetrips.api.dto.QuizRequest;
 import com.signaturetrips.api.domain.entity.Usuario;
@@ -21,7 +21,7 @@ public class QuizService {
     }
 
     public List<PerguntaDto> getPerguntas() {
-        return QuizData.PERGUNTAS;
+        return QuizConstants.PERGUNTAS;
     }
 
     public void salvarPerfil(QuizRequest request) {

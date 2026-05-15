@@ -1,13 +1,13 @@
-package com.signaturetrips.api.data;
+package com.signaturetrips.api.constant;
 
 import com.signaturetrips.api.dto.OpcaoDto;
 import com.signaturetrips.api.dto.PerguntaDto;
 
 import java.util.List;
 
-public final class QuizData {
+public final class QuizConstants {
 
-    private QuizData() {}
+    private QuizConstants() {}
 
     public static final List<PerguntaDto> PERGUNTAS = List.of(
             new PerguntaDto(1, "Where do you feel most alive?", List.of(
