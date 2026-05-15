@@ -12,10 +12,8 @@ import com.signaturetrips.api.dto.RoteiroAtividadeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -40,20 +38,21 @@ class RoteiroAtividadeServiceTest {
     @Mock
     private RoteiroAtividadeRepository roteiroAtividadeRepository;
 
-    @InjectMocks
     private RoteiroAtividadeService service;
 
     private static final Long OWNER_ID = 1L;
     private static final Long OTHER_USER_ID = 99L;
     private static final Long ROTEIRO_ID = 10L;
     private static final Long DESTINO_ID = 5L;
+    private static final int MAX_ATIVIDADES_POR_DIA = 5;
 
     private Roteiro roteiro;
     private Atividade atividade;
 
     @BeforeEach
     void setup() {
-        ReflectionTestUtils.setField(service, "maxAtividadesPorDia", 5);
+        service = new RoteiroAtividadeService(
+                roteiroRepository, atividadeRepository, roteiroAtividadeRepository, MAX_ATIVIDADES_POR_DIA);
 
         Usuario owner = new Usuario();
         owner.setId(OWNER_ID);
