@@ -39,7 +39,7 @@ public class RoteiroAtividadeService {
         Roteiro roteiro = buscarRoteiro(roteiroId);
         validarPropriedade(roteiro, usuarioId);
         return roteiroAtividadeRepository.findByRoteiroId(roteiroId).stream()
-                .map(ra -> new RoteiroAtividadeResponse(ra.getAtividade().getId(), ra.getDiaNumero()))
+                .map(RoteiroAtividadeResponse::from)
                 .toList();
     }
 
@@ -63,7 +63,7 @@ public class RoteiroAtividadeService {
         ra.setDiaNumero(request.diaNumero());
 
         roteiroAtividadeRepository.save(ra);
-        return new RoteiroAtividadeResponse(atividade.getId(), request.diaNumero());
+        return RoteiroAtividadeResponse.from(ra);
     }
 
     @Transactional

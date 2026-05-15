@@ -34,12 +34,7 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        return new LoginResponse(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.isQuizCompleto()
-        );
+        return LoginResponse.from(usuario);
     }
 
     @Transactional(readOnly = true)
@@ -51,11 +46,6 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
 
-        return new LoginResponse(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.isQuizCompleto()
-        );
+        return LoginResponse.from(usuario);
     }
 }
