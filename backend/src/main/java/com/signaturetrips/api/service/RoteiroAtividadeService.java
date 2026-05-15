@@ -19,19 +19,19 @@ import java.util.List;
 @Service
 public class RoteiroAtividadeService {
 
-    @Value("${roteiro.max-atividades-por-dia:5}")
-    private int maxAtividadesPorDia;
-
     private final RoteiroRepository roteiroRepository;
     private final AtividadeRepository atividadeRepository;
     private final RoteiroAtividadeRepository roteiroAtividadeRepository;
+    private final int maxAtividadesPorDia;
 
     public RoteiroAtividadeService(RoteiroRepository roteiroRepository,
                                    AtividadeRepository atividadeRepository,
-                                   RoteiroAtividadeRepository roteiroAtividadeRepository) {
+                                   RoteiroAtividadeRepository roteiroAtividadeRepository,
+                                   @Value("${roteiro.max-atividades-por-dia:5}") int maxAtividadesPorDia) {
         this.roteiroRepository = roteiroRepository;
         this.atividadeRepository = atividadeRepository;
         this.roteiroAtividadeRepository = roteiroAtividadeRepository;
+        this.maxAtividadesPorDia = maxAtividadesPorDia;
     }
 
     @Transactional(readOnly = true)
