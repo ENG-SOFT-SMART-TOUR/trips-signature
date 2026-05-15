@@ -9,13 +9,8 @@ import EmptyState from '@/components/EmptyState';
 import PageHeader from '@/components/PageHeader';
 import LoadingState from '@/components/LoadingState';
 import { destinoApi } from '@/services/api';
+import { calculateMatch } from '@/lib/matchUtils';
 import type { Destino } from '@/types/index';
-
-function calculateMatch(userTags: string[], destTags: string[]): number {
-  if (userTags.length === 0) return Math.floor(Math.random() * 30 + 60);
-  const matches = destTags.filter(t => userTags.includes(t)).length;
-  return Math.min(100, Math.floor((matches / Math.max(destTags.length, userTags.length)) * 100 + 30));
-}
 
 export default function Matches() {
   const { user } = useStore();
