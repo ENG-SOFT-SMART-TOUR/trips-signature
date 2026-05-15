@@ -40,7 +40,7 @@ public class DestinoService {
     public List<DestinoResponse> listarSalvos(Long usuarioId) {
         Usuario usuario = buscarUsuario(usuarioId);
         return destinoSalvoRepository.findByUsuario(usuario).stream()
-                .map(ds -> DestinoResponse.from(ds.getDestino()))
+                .map(destinoSalvo -> DestinoResponse.from(destinoSalvo.getDestino()))
                 .toList();
     }
 
