@@ -371,6 +371,14 @@ export default function Landing() {
                   Get started for Free <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
+              <a
+                href="https://forms.gle/BWHiUicv3VcuWcDm9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 block font-body text-sm text-primary-foreground/60 hover:text-primary-foreground underline underline-offset-4 transition-colors"
+              >
+                Help shape the product — take our 3-minute survey
+              </a>
             </Reveal>
           </div>
         </section>
