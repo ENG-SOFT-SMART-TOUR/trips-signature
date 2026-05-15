@@ -1,9 +1,17 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
-import { getActivity, getDestinationActivities } from '@/data/mockData';
+import { getActivity, getDestination, getDestinationActivities } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useState, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -59,6 +67,26 @@ export default function NewDiaryEntry() {
     <AppLayout>
       <PageTransition>
         <div className="max-w-lg mx-auto px-4 py-12">
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/diaries">Diários</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to={`/diary/${id}`}>{getDestination(diary.destinationId)?.name ?? 'Diário'}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Novo registro</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           <PageHeader label="New entry" title="Write a Memory" size="lg" titleClassName="mb-8" />
 
           <form onSubmit={handleSubmit} className="space-y-6">
