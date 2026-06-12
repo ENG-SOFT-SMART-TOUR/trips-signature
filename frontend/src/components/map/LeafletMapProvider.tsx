@@ -2,7 +2,12 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { TURNOS } from '@/types/index';
 import type { MapProviderProps } from './MapProvider';
+
+function turnoLabel(turno: string): string {
+  return TURNOS.find(t => t.value === turno)?.label ?? turno;
+}
 
 function createPinIcon(color: string, label: string) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="38" viewBox="0 0 28 38">
@@ -66,7 +71,7 @@ export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
             <div className="font-body text-sm">
               <strong>{pin.nome}</strong>
               <br />
-              <span className="text-xs text-muted-foreground">Day {pin.diaNumero} · {pin.turno} · {pin.duracao}</span>
+              <span className="text-xs text-muted-foreground">Dia {pin.diaNumero} · {turnoLabel(pin.turno)} · {pin.duracao}</span>
             </div>
           </Popup>
         </Marker>
