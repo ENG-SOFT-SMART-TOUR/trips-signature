@@ -192,7 +192,7 @@ export default function Admin() {
                 <Label className="font-body text-sm">Tags (separadas por vírgula)</Label>
                 <Input
                   value={Array.isArray(editDest.tags) ? editDest.tags.join(', ') : (editDest.tags as string) || ''}
-                  onChange={e => setEditDest(d => ({ ...d, tags: e.target.value as any }))}
+                  onChange={e => setEditDest(d => ({ ...d, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) }))}
                   className="bg-transparent border border-border"
                 />
               </div>

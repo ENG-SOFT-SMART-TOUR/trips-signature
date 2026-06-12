@@ -18,7 +18,7 @@ const DAY_COLORS = [
   '#059669',
 ];
 
-export function getDayColor(dayNumber: number): string {
+function getDayColor(dayNumber: number): string {
   return DAY_COLORS[(dayNumber - 1) % DAY_COLORS.length];
 }
 
