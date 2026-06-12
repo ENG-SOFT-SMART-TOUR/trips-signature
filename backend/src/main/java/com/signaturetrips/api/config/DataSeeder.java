@@ -8,10 +8,41 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+
+    private static final Map<String, Coordenadas> COORDENADAS_DESTINOS = Map.ofEntries(
+            Map.entry("Florianópolis", new Coordenadas(-27.5954, -48.5480)),
+            Map.entry("Gramado", new Coordenadas(-29.3739, -50.8765)),
+            Map.entry("Fernando de Noronha", new Coordenadas(-3.8547, -32.4247)),
+            Map.entry("Chapada Diamantina", new Coordenadas(-12.4292, -41.3480)),
+            Map.entry("Dubai", new Coordenadas(25.2048, 55.2708)),
+            Map.entry("Buenos Aires", new Coordenadas(-34.6037, -58.3816)),
+            Map.entry("Cartagena", new Coordenadas(10.3910, -75.5144)),
+            Map.entry("Cusco", new Coordenadas(-13.5320, -71.9675)),
+            Map.entry("New York City", new Coordenadas(40.7128, -74.0060)),
+            Map.entry("Hudson Valley", new Coordenadas(41.4370, -74.0132)),
+            Map.entry("San Francisco", new Coordenadas(37.7749, -122.4194)),
+            Map.entry("Big Sur", new Coordenadas(36.2704, -121.8081)),
+            Map.entry("Los Angeles", new Coordenadas(34.0522, -118.2437)),
+            Map.entry("Austin", new Coordenadas(30.2672, -97.7431)),
+            Map.entry("Paris", new Coordenadas(48.8566, 2.3522)),
+            Map.entry("Amalfi Coast", new Coordenadas(40.6333, 14.6029)),
+            Map.entry("Barcelona", new Coordenadas(41.3874, 2.1686)),
+            Map.entry("Santorini", new Coordenadas(36.3932, 25.4615)),
+            Map.entry("Swiss Alps", new Coordenadas(46.8182, 8.2275))
+    );
+
+    private static final List<Coordenadas> OFFSETS_ATIVIDADES = List.of(
+            new Coordenadas(0.0000, 0.0000),
+            new Coordenadas(0.0120, 0.0100),
+            new Coordenadas(-0.0100, 0.0140),
+            new Coordenadas(0.0150, -0.0120),
+            new Coordenadas(-0.0130, -0.0090)
+    );
 
     private final DestinoRepository destinoRepository;
     private final AtividadeRepository atividadeRepository;
@@ -61,7 +92,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private List<Atividade> atividadesParaDestino(Destino d) {
-        return switch (d.getCategoria()) {
+        List<Atividade> atividades = switch (d.getCategoria()) {
             case "beach" -> List.of(
                 ativ(d, "Surf Lesson", "Adventure", "3h", "morning",
                     "Learn to ride the waves with a certified instructor on the best local breaks.",
@@ -131,6 +162,23 @@ public class DataSeeder implements CommandLineRunner {
                     "https://picsum.photos/seed/stargazing/800/600")
             );
         };
+
+        aplicarCoordenadas(d, atividades);
+        return atividades;
+    }
+
+    private void aplicarCoordenadas(Destino destino, List<Atividade> atividades) {
+        Coordenadas base = COORDENADAS_DESTINOS.get(destino.getNome());
+        if (base == null) {
+            return;
+        }
+
+        for (int i = 0; i < atividades.size(); i++) {
+            Coordenadas offset = OFFSETS_ATIVIDADES.get(i % OFFSETS_ATIVIDADES.size());
+            Atividade atividade = atividades.get(i);
+            atividade.setLatitude(base.latitude() + offset.latitude());
+            atividade.setLongitude(base.longitude() + offset.longitude());
+        }
     }
 
     private Atividade ativ(Destino destino, String nome, String categoria,
@@ -156,5 +204,8 @@ public class DataSeeder implements CommandLineRunner {
         d.setCategoria(categoria);
         d.setTags(tags);
         return d;
+    }
+
+    private record Coordenadas(double latitude, double longitude) {
     }
 }

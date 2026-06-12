@@ -18,6 +18,12 @@ Aplicativo de recomendação de viagens personalizado. O usuário se cadastra, r
 
 ---
 
+## Dados de Desenvolvimento
+
+O `DataSeeder` popula destinos e atividades quando as tabelas estão vazias. Para reexecutar o seed das atividades e preencher novas coordenadas de mapa, limpe a tabela `atividades` no banco de desenvolvimento e reinicie o backend.
+
+---
+
 ## Estrutura do Projeto
 
 ```

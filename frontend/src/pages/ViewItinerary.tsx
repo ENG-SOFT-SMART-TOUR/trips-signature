@@ -327,7 +327,7 @@ export default function ViewItinerary() {
             </TabsContent>
 
             <TabsContent value="map">
-              <ItineraryMap days={itinerary?.days ?? []} destinationName={destNome} />
+              <ItineraryMap days={dias} atividades={atividades} destinationName={destNome} />
             </TabsContent>
           </Tabs>
         </div>
