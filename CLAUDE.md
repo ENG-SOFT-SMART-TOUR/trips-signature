@@ -323,7 +323,10 @@ changing it to `error` silently breaks every error toast.
 
 ### Database
 1. **DataSeeder runs once**: seeds destinos if the table is empty, then atividades if that table is
-   empty. To re-seed, clear the relevant table(s).
+   empty (with real latitude/longitude — static city-center map + deterministic offset per
+   activity). To re-seed atividades (e.g. to populate coordinates on a pre-existing database):
+   `docker exec signaturetrips-db psql -U signaturetrips -d signaturetrips -c "DELETE FROM roteiro_atividades; DELETE FROM atividades;"`
+   then restart the backend (note: this also clears activities already added to itineraries).
 2. **`ddl-auto=update`**: schema changes apply automatically in dev; use `validate` for prod.
 3. **Port conflict**: the dev DB is on host port **5433** specifically to coexist with other local
    Postgres containers. Keep `docker-compose.yml` and `application.properties` in sync.
