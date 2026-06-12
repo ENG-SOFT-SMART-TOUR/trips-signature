@@ -39,6 +39,16 @@ function getCenter(positions: MapPosition[]): MapPosition {
   ];
 }
 
+function formatTurno(turno: string): string {
+  const turnos: Record<string, string> = {
+    morning: 'Manhã',
+    afternoon: 'Tarde',
+    evening: 'Noite',
+  };
+
+  return turnos[turno] ?? turno;
+}
+
 const LeafletMapProvider: MapProvider = ({ markers, polylines, positions }) => (
   <MapContainer
     center={getCenter(positions)}
@@ -67,12 +77,13 @@ const LeafletMapProvider: MapProvider = ({ markers, polylines, positions }) => (
         icon={createPinIcon(marker.color, marker.label)}
       >
         <Popup>
-          <div className="font-body text-sm">
-            <strong>{marker.nome}</strong>
-            <br />
-            <span className="text-xs text-muted-foreground">
-              Dia {marker.diaNumero} · {marker.turno} · {marker.duracao}
-            </span>
+          <div className="font-body text-sm space-y-1">
+            <strong className="block">{marker.nome}</strong>
+            <div className="text-xs text-muted-foreground">
+              <div>Dia {marker.diaNumero}</div>
+              <div>Turno: {formatTurno(marker.turno)}</div>
+              <div>Duração: {marker.duracao}</div>
+            </div>
           </div>
         </Popup>
       </Marker>
