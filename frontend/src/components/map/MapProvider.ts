@@ -13,6 +13,7 @@ export interface MapPin {
 export interface MapRoute {
   positions: [number, number][];
   color: string;
+  diaNumero: number;
 }
 
 export interface MapProviderProps {

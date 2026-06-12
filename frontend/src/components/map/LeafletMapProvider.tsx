@@ -57,16 +57,18 @@ export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
       />
       <FitBounds positions={allPositions} />
 
-      {routes.map((route, i) => (
+      {routes.map(route => (
         <Polyline
-          key={`pl-${i}`}
+          key={`pl-${route.diaNumero}`}
           positions={route.positions}
           pathOptions={{ color: route.color, weight: 3, opacity: 0.6, dashArray: '8 6' }}
         />
       ))}
 
-      {pins.map((pin, i) => (
-        <Marker key={`m-${i}`} position={pin.position} icon={createPinIcon(pin.color, pin.label)}>
+      {/* Keys estáveis por dia+label: com key por índice, filtrar os pins faria o
+          popup aberto "migrar" para o marker que assumisse o mesmo índice */}
+      {pins.map(pin => (
+        <Marker key={`m-${pin.diaNumero}-${pin.label}`} position={pin.position} icon={createPinIcon(pin.color, pin.label)}>
           <Popup>
             <div className="font-body text-sm">
               <strong>{pin.nome}</strong>
