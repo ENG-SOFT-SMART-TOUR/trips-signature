@@ -323,8 +323,9 @@ changing it to `error` silently breaks every error toast.
 
 ### Database
 1. **DataSeeder runs once**: seeds destinos if the table is empty, then atividades if that table is
-   empty (with real latitude/longitude — static city-center map + deterministic offset per
-   activity). To re-seed atividades (e.g. to populate coordinates on a pre-existing database):
+   empty (with synthetic demo coordinates — each destino's seed data carries its city-center
+   lat/lng, and activities get a deterministic circular offset around it; these are not real
+   activity locations). To re-seed atividades (e.g. to populate coordinates on a pre-existing database):
    `docker exec signaturetrips-db psql -U signaturetrips -d signaturetrips -c "DELETE FROM roteiro_atividades; DELETE FROM atividades;"`
    then restart the backend (note: this also clears activities already added to itineraries).
 2. **`ddl-auto=update`**: schema changes apply automatically in dev; use `validate` for prod.

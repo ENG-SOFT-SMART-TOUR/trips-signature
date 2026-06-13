@@ -14,7 +14,8 @@ import { useHydratedItinerary } from '@/hooks/useHydratedItinerary';
 import { formatarDia } from '@/lib/dateUtils';
 import type { MapProvider } from '@/components/map/MapProvider';
 
-// Lazy-load: o chunk do mapa (leaflet) só é baixado ao abrir a aba Mapa (RNF de carga < 3s)
+// Lazy-load: o chunk do mapa (leaflet) só é baixado ao abrir a aba Mapa,
+// mantendo-o fora do bundle inicial da página.
 const ItineraryMap = lazy(() => import('@/components/ItineraryMap'));
 // A tela (camada de composição) escolhe o provider concreto; o ItineraryMap só conhece o contrato.
 const LeafletMapProvider = lazy(() => import('@/components/map/LeafletMapProvider')) as MapProvider;
