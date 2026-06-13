@@ -7,6 +7,7 @@ import com.signaturetrips.api.domain.repository.DestinoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +56,25 @@ public class DataSeeder implements CommandLineRunner {
         }
         if (atividadeRepository.count() == 0) {
             seedAtividades();
+        } else {
+            preencherCoordenadasFaltantes();
+        }
+    }
+
+    // Bancos populados antes do RF07 já tinham atividades, mas sem lat/lng —
+    // e o seed completo só roda com a tabela vazia. Preenche o que falta
+    // reaplicando a mesma dispersão determinística do seed.
+    private void preencherCoordenadasFaltantes() {
+        for (Destino destino : destinoRepository.findAll()) {
+            List<Atividade> atividades = atividadeRepository.findByDestinoId(destino.getId());
+            boolean faltaCoordenada = atividades.stream()
+                .anyMatch(a -> a.getLatitude() == null || a.getLongitude() == null);
+            if (!faltaCoordenada) {
+                continue;
+            }
+            atividades.sort(Comparator.comparing(Atividade::getId));
+            aplicarCoordenadas(destino, atividades);
+            atividadeRepository.saveAll(atividades);
         }
     }
 
