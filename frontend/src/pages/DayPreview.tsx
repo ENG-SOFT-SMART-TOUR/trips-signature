@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
 import {
   Breadcrumb,
@@ -15,63 +13,18 @@ import { motion } from 'framer-motion';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ActivityCard from '@/components/ActivityCard';
-import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
-import { useItineraryDays } from '@/hooks/useItineraryDays';
+import { useHydratedItinerary } from '@/hooks/useHydratedItinerary';
 import { formatarDia } from '@/lib/dateUtils';
-import type { Roteiro, Atividade } from '@/types/index';
+import type { Atividade } from '@/types/index';
 
 export default function DayPreview() {
   const { id, dayNumber } = useParams<{ id: string; dayNumber: string }>();
   const navigate = useNavigate();
-  const { itineraries, updateItinerary, addItinerary, user } = useStore();
-
-  const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
-  const [atividades, setAtividades] = useState<Atividade[]>([]);
   const dayNum = parseInt(dayNumber || '1');
-  const itinerary = itineraries.find(it => it.id === id);
 
-  useEffect(() => {
-    const numId = Number(id);
-    if (isNaN(numId) || !user) return;
-    roteiroApi.buscarPorId(numId)
-      .then(res => {
-        setRoteiro(res.data);
-        return Promise.all([
-          atividadeApi.listarPorDestino(res.data.destino.id),
-          roteiroAtividadeApi.listar(numId, user.id),
-        ]);
-      })
-      .then(([atividadesRes, diasRes]) => {
-        setAtividades(atividadesRes.data);
-        const actsByDay: Record<number, string[]> = {};
-        for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
-          if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
-          actsByDay[ra.diaNumero].push(String(ra.atividadeId));
-        }
-        const dep = new Date(res.data.dataIda + 'T00:00:00');
-        const days = Array.from({ length: res.data.totalDias }, (_, i) => {
-          const date = new Date(dep);
-          date.setDate(date.getDate() + i);
-          const iso = date.toISOString().split('T')[0];
-          return { dayNumber: i + 1, date: iso, activityIds: actsByDay[i + 1] ?? [] };
-        });
-        if (itinerary) {
-          updateItinerary(itinerary.id, days);
-        } else {
-          addItinerary({
-            id: String(numId),
-            destinationId: String(res.data.destino.id),
-            departureDate: res.data.dataIda,
-            returnDate: res.data.dataVolta,
-            days,
-            createdAt: new Date().toISOString(),
-          });
-        }
-      })
-      .catch(() => {});
-  }, [id, user]);
-
-  const dias = useItineraryDays(roteiro, itinerary);
+  // Falha de carga é silenciosa nesta tela (comportamento original): o gate
+  // "Não encontrado" abaixo cobre o caso de não haver dados.
+  const { roteiro, atividades, days: dias, itinerary } = useHydratedItinerary(id);
 
   const day = dias.find(d => d.dayNumber === dayNum);
   const destNome = roteiro?.destino.nome ?? 'Unknown';

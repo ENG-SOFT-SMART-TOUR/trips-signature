@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CalendarRange, Download, Edit, FileText, List, MapPin, Printer } from 'lucide-react';
@@ -11,10 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ActivityCard from '@/components/ActivityCard';
-import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
-import { useItineraryDays } from '@/hooks/useItineraryDays';
+import { useHydratedItinerary } from '@/hooks/useHydratedItinerary';
 import { formatarDia } from '@/lib/dateUtils';
-import type { Roteiro, Atividade } from '@/types/index';
 import type { MapProvider } from '@/components/map/MapProvider';
 
 // Lazy-load: o chunk do mapa (leaflet) só é baixado ao abrir a aba Mapa (RNF de carga < 3s)
@@ -25,69 +22,16 @@ const LeafletMapProvider = lazy(() => import('@/components/map/LeafletMapProvide
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { itineraries, updateItinerary, addItinerary, user } = useStore();
+  const { roteiro, atividades, days: dias, itinerary, loading, error } = useHydratedItinerary(id);
 
-  const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
-  const [atividades, setAtividades] = useState<Atividade[]>([]);
-  const [loading, setLoading] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
   const [openDays, setOpenDays] = useState<number[]>([1]);
 
-  const itinerary = itineraries.find(it => it.id === id);
-
   useEffect(() => {
-    const numId = Number(id);
-
-    if (itinerary) setLoading(false);
-
-    if (isNaN(numId) || !user) { setLoading(false); return; }
-
-    const destinoId = Number(itinerary?.destinationId);
-
-    const atividadesPromise = !isNaN(destinoId)
-      ? atividadeApi.listarPorDestino(destinoId)
-      : roteiroApi.buscarPorId(numId).then(r => atividadeApi.listarPorDestino(r.data.destino.id));
-
-    Promise.all([
-      roteiroApi.buscarPorId(numId),
-      atividadesPromise,
-      roteiroAtividadeApi.listar(numId, user.id),
-    ])
-      .then(([roteiroRes, atividadesRes, diasRes]) => {
-        setRoteiro(roteiroRes.data);
-        setAtividades(atividadesRes.data);
-        const actsByDay: Record<number, string[]> = {};
-        for (const ra of diasRes.data as { atividadeId: number; diaNumero: number }[]) {
-          if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
-          actsByDay[ra.diaNumero].push(String(ra.atividadeId));
-        }
-        const dep = new Date(roteiroRes.data.dataIda + 'T00:00:00');
-        const days = Array.from({ length: roteiroRes.data.totalDias }, (_, i) => {
-          const date = new Date(dep);
-          date.setDate(date.getDate() + i);
-          const iso = date.toISOString().split('T')[0];
-          return { dayNumber: i + 1, date: iso, activityIds: actsByDay[i + 1] ?? [] };
-        });
-        if (itinerary) {
-          updateItinerary(itinerary.id, days);
-        } else {
-          addItinerary({
-            id: String(numId),
-            destinationId: String(roteiroRes.data.destino.id),
-            departureDate: roteiroRes.data.dataIda,
-            returnDate: roteiroRes.data.dataVolta,
-            days,
-            createdAt: new Date().toISOString(),
-          });
-        }
-      })
-      .catch(() => toast.error('Erro ao carregar o roteiro'))
-      .finally(() => setLoading(false));
-  }, [id, user]);
+    if (error) toast.error('Erro ao carregar o roteiro');
+  }, [error]);
 
   const getAtividade = (aid: string) => atividades.find(a => String(a.id) === aid);
-
-  const dias = useItineraryDays(roteiro, itinerary);
 
   const destNome  = roteiro?.destino.nome  ?? 'Desconhecido';
   const destPais  = roteiro?.destino.pais  ?? '';
