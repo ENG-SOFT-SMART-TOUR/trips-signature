@@ -1,7 +1,14 @@
 import type { ComponentType } from 'react';
 
+// Coordenada neutra de provider: cada implementação converte para o formato
+// da sua biblioteca (Leaflet, Google Maps, ...) na própria borda.
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 export interface MapPin {
-  position: [number, number];
+  position: LatLng;
   color: string;
   label: string;
   nome: string;
@@ -11,7 +18,7 @@ export interface MapPin {
 }
 
 export interface MapRoute {
-  positions: [number, number][];
+  positions: LatLng[];
   color: string;
   diaNumero: number;
 }

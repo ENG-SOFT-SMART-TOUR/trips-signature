@@ -52,7 +52,7 @@ describe('ItineraryMap', () => {
     const dia2 = providerProps!.pins.filter(p => p.diaNumero === 2);
     expect(dia1).toHaveLength(2);
     expect(dia2).toHaveLength(1);
-    expect(dia1[0].position).toEqual([-27.5949, -48.5482]);
+    expect(dia1[0].position).toEqual({ lat: -27.5949, lng: -48.5482 });
     expect(dia1.every(p => p.color === getDayColor(1))).toBe(true);
     expect(dia2[0].nome).toBe('Boat Tour');
 
