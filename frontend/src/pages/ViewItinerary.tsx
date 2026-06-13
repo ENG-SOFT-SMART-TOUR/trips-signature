@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,14 @@ import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
-import ItineraryMap from '@/components/ItineraryMap';
 import ActivityCard from '@/components/ActivityCard';
 import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
 import { useItineraryDays } from '@/hooks/useItineraryDays';
 import { formatarDia } from '@/lib/dateUtils';
 import type { Roteiro, Atividade } from '@/types/index';
+
+// Lazy-load: o chunk do mapa (leaflet) só é baixado ao abrir a aba Mapa (RNF de carga < 3s)
+const ItineraryMap = lazy(() => import('@/components/ItineraryMap'));
 
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
@@ -327,7 +329,9 @@ export default function ViewItinerary() {
             </TabsContent>
 
             <TabsContent value="map">
-              <ItineraryMap days={itinerary?.days ?? []} destinationName={destNome} />
+              <Suspense fallback={<Skeleton className="h-[500px] w-full rounded-lg" />}>
+                <ItineraryMap days={itinerary?.days ?? []} atividades={atividades} />
+              </Suspense>
             </TabsContent>
           </Tabs>
         </div>

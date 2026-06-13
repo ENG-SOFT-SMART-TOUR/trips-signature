@@ -8,10 +8,37 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+
+    // Raio (em graus, ~1.3 km) usado para espalhar as atividades pela cidade.
+    private static final double RAIO_DISPERSAO = 0.012;
+
+    // Centro de cada destino seedado (lat, lng). Chave = nome exato usado em seedDestinos().
+    private static final Map<String, double[]> COORDENADAS = Map.ofEntries(
+        Map.entry("Florianópolis", new double[]{-27.5949, -48.5482}),
+        Map.entry("Gramado", new double[]{-29.3747, -50.8764}),
+        Map.entry("Fernando de Noronha", new double[]{-3.8549, -32.4297}),
+        Map.entry("Chapada Diamantina", new double[]{-12.5630, -41.3907}),
+        Map.entry("Dubai", new double[]{25.2048, 55.2708}),
+        Map.entry("Buenos Aires", new double[]{-34.6037, -58.3816}),
+        Map.entry("Cartagena", new double[]{10.3910, -75.4794}),
+        Map.entry("Cusco", new double[]{-13.5320, -71.9675}),
+        Map.entry("New York City", new double[]{40.7128, -74.0060}),
+        Map.entry("Hudson Valley", new double[]{41.7004, -73.9210}),
+        Map.entry("San Francisco", new double[]{37.7749, -122.4194}),
+        Map.entry("Big Sur", new double[]{36.2704, -121.8081}),
+        Map.entry("Los Angeles", new double[]{34.0522, -118.2437}),
+        Map.entry("Austin", new double[]{30.2672, -97.7431}),
+        Map.entry("Paris", new double[]{48.8566, 2.3522}),
+        Map.entry("Amalfi Coast", new double[]{40.6340, 14.6027}),
+        Map.entry("Barcelona", new double[]{41.3874, 2.1686}),
+        Map.entry("Santorini", new double[]{36.3932, 25.4615}),
+        Map.entry("Swiss Alps", new double[]{46.6863, 7.8632})
+    );
 
     private final DestinoRepository destinoRepository;
     private final AtividadeRepository atividadeRepository;
@@ -56,7 +83,23 @@ public class DataSeeder implements CommandLineRunner {
     private void seedAtividades() {
         List<Destino> destinos = destinoRepository.findAll();
         for (Destino d : destinos) {
-            atividadeRepository.saveAll(atividadesParaDestino(d));
+            List<Atividade> atividades = atividadesParaDestino(d);
+            aplicarCoordenadas(d, atividades);
+            atividadeRepository.saveAll(atividades);
+        }
+    }
+
+    // Offset determinístico por índice (sem aleatoriedade) para que o re-seed
+    // produza sempre as mesmas posições.
+    private void aplicarCoordenadas(Destino destino, List<Atividade> atividades) {
+        double[] base = COORDENADAS.get(destino.getNome());
+        if (base == null) {
+            return;
+        }
+        for (int i = 0; i < atividades.size(); i++) {
+            double angulo = 2 * Math.PI * i / atividades.size();
+            atividades.get(i).setLatitude(base[0] + RAIO_DISPERSAO * Math.cos(angulo));
+            atividades.get(i).setLongitude(base[1] + RAIO_DISPERSAO * Math.sin(angulo));
         }
     }
 
