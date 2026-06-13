@@ -1,7 +1,12 @@
 import type { ComponentType } from 'react';
 
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 export interface MapPin {
-  position: [number, number];
+  position: LatLng;
   color: string;
   label: string;
   nome: string;
@@ -11,7 +16,7 @@ export interface MapPin {
 }
 
 export interface MapRoute {
-  positions: [number, number][];
+  positions: LatLng[];
   color: string;
   diaNumero: number;
 }
@@ -21,6 +26,5 @@ export interface MapProviderProps {
   routes: MapRoute[];
 }
 
-// Ponto de variação do RNF1 (Leaflet ou Google Maps): um provider só renderiza
-// pins e traçados — a montagem dos dados a partir do roteiro fica fora dele.
+// Provider de mapa renderiza pins e traçados; a montagem dos dados fica fora dele.
 export type MapProvider = ComponentType<MapProviderProps>;

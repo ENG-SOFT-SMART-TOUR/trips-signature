@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TURNOS } from '@/types/index';
-import type { MapProviderProps } from './MapProvider';
+import type { LatLng, MapProviderProps } from './MapProvider';
 
 function turnoLabel(turno: string): string {
   return TURNOS.find(t => t.value === turno)?.label ?? turno;
@@ -24,11 +24,15 @@ function createPinIcon(color: string, label: string) {
   });
 }
 
-function FitBounds({ positions }: { positions: [number, number][] }) {
+function toLeafletPosition(position: LatLng): [number, number] {
+  return [position.lat, position.lng];
+}
+
+function FitBounds({ positions }: { positions: LatLng[] }) {
   const map = useMap();
   useEffect(() => {
     if (positions.length > 0) {
-      const bounds = L.latLngBounds(positions.map(p => L.latLng(p[0], p[1])));
+      const bounds = L.latLngBounds(positions.map(p => L.latLng(p.lat, p.lng)));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
   }, [map, positions]);
@@ -39,8 +43,8 @@ export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
   const allPositions = pins.map(p => p.position);
   const center: [number, number] = allPositions.length > 0
     ? [
-        allPositions.reduce((s, p) => s + p[0], 0) / allPositions.length,
-        allPositions.reduce((s, p) => s + p[1], 0) / allPositions.length,
+        allPositions.reduce((s, p) => s + p.lat, 0) / allPositions.length,
+        allPositions.reduce((s, p) => s + p.lng, 0) / allPositions.length,
       ]
     : [0, 0];
 
@@ -60,7 +64,7 @@ export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
       {routes.map(route => (
         <Polyline
           key={`pl-${route.diaNumero}`}
-          positions={route.positions}
+          positions={route.positions.map(toLeafletPosition)}
           pathOptions={{ color: route.color, weight: 3, opacity: 0.6, dashArray: '8 6' }}
         />
       ))}
@@ -68,7 +72,7 @@ export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
       {/* Keys estáveis por dia+label: com key por índice, filtrar os pins faria o
           popup aberto "migrar" para o marker que assumisse o mesmo índice */}
       {pins.map(pin => (
-        <Marker key={`m-${pin.diaNumero}-${pin.label}`} position={pin.position} icon={createPinIcon(pin.color, pin.label)}>
+        <Marker key={`m-${pin.diaNumero}-${pin.label}`} position={toLeafletPosition(pin.position)} icon={createPinIcon(pin.color, pin.label)}>
           <Popup>
             <div className="font-body text-sm">
               <strong>{pin.nome}</strong>

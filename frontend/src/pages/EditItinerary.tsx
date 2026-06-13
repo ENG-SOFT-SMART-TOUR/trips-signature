@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
@@ -8,75 +8,21 @@ import { toast } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import AppLayout from '@/components/AppLayout';
 import ActivityCard from '@/components/ActivityCard';
-import { atividadeApi, roteiroApi, roteiroAtividadeApi } from '@/services/api';
+import { roteiroAtividadeApi } from '@/services/api';
+import { useHydratedItinerary } from '@/hooks/useHydratedItinerary';
 import { TURNOS } from '@/types/index';
-import type { Atividade, Roteiro, RoteiroAtividadeResponse, Turno } from '@/types/index';
-import type { ItineraryDay } from '@/store/useStore';
+import type { Atividade, Turno } from '@/types/index';
 
 const MAX_ATIVIDADES_POR_DIA = 5;
 
 export default function EditItinerary() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, itineraries, updateItinerary } = useStore();
-  const storeItinerary = itineraries.find(it => it.id === id);
+  const { user } = useStore();
+  const { roteiro, atividades, days, loading, notFound, persistDays } = useHydratedItinerary(id);
 
-  const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
-  const [atividades, setAtividades] = useState<Atividade[]>([]);
-  const [days, setDays] = useState<ItineraryDay[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [turnoFiltro, setTurnoFiltro] = useState<Turno | null>(null);
-
-  useEffect(() => {
-    const numId = Number(id);
-    if (isNaN(numId) || !user) {
-      setLoading(false);
-      setNotFound(true);
-      return;
-    }
-
-    setLoading(true);
-    roteiroApi.buscarPorId(numId)
-      .then(roteiroRes => {
-        const r: Roteiro = roteiroRes.data;
-        setRoteiro(r);
-        return Promise.all([
-          Promise.resolve(r),
-          atividadeApi.listarPorDestino(r.destino.id),
-          roteiroAtividadeApi.listar(numId, user.id),
-        ]);
-      })
-      .then(([r, atividadesRes, diasRes]) => {
-        setAtividades(atividadesRes.data);
-
-        const actsByDay: Record<number, string[]> = {};
-        for (const ra of diasRes.data as RoteiroAtividadeResponse[]) {
-          if (!actsByDay[ra.diaNumero]) actsByDay[ra.diaNumero] = [];
-          actsByDay[ra.diaNumero].push(String(ra.atividadeId));
-        }
-
-        const dep = new Date(r.dataIda + 'T00:00:00');
-        const builtDays: ItineraryDay[] = Array.from({ length: r.totalDias }, (_, i) => {
-          const date = new Date(dep);
-          date.setDate(date.getDate() + i);
-          return {
-            dayNumber: i + 1,
-            date: date.toISOString().split('T')[0],
-            activityIds: actsByDay[i + 1] ?? [],
-          };
-        });
-        setDays(builtDays);
-        if (storeItinerary) updateItinerary(storeItinerary.id, builtDays);
-      })
-      .catch(() => {
-        setNotFound(true);
-        toast.error('Erro ao carregar o roteiro');
-      })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user]);
 
   if (loading) {
     return (
@@ -105,11 +51,6 @@ export default function EditItinerary() {
   const atividadesDisponiveis = turnoFiltro
     ? atividades.filter(a => a.turno?.toLowerCase() === turnoFiltro)
     : atividades;
-
-  const persistDays = (newDays: ItineraryDay[]) => {
-    setDays(newDays);
-    if (storeItinerary) updateItinerary(storeItinerary.id, newDays);
-  };
 
   const addActivity = async (act: Atividade) => {
     if (!user || !currentDay) return;

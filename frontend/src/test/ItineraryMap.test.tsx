@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import ItineraryMap, { getDayColor } from '@/components/ItineraryMap';
+import { buildMapData } from '@/components/map/buildMapData';
 import type { MapProviderProps } from '@/components/map/MapProvider';
 import type { Atividade } from '@/types/index';
 import type { ItineraryDay } from '@/store/useStore';
 
-// Provider fake (seam da Strategy): captura os pins/rotas recebidos sem renderizar leaflet
+// Provider fake: captura os pins/rotas recebidos sem renderizar leaflet.
 let providerProps: MapProviderProps | null = null;
 function FakeProvider(props: MapProviderProps) {
   providerProps = props;
@@ -42,6 +43,19 @@ beforeEach(() => {
 });
 
 describe('ItineraryMap', () => {
+  it('monta dados do mapa por dia usando coordenadas neutras', () => {
+    const dados = buildMapData(days, atividades);
+
+    expect(dados.pins).toHaveLength(3);
+    expect(dados.pins[0].position).toEqual({ lat: -27.5949, lng: -48.5482 });
+    expect(dados.pins[0].color).toBe(getDayColor(1));
+    expect(dados.routes).toHaveLength(1);
+    expect(dados.routes[0].positions).toEqual([
+      { lat: -27.5949, lng: -48.5482 },
+      { lat: -27.6049, lng: -48.5382 },
+    ]);
+  });
+
   it('renderiza pins corretos por dia a partir das atividades da API', () => {
     render(<ItineraryMap days={days} atividades={atividades} provider={FakeProvider} />);
 
@@ -52,7 +66,7 @@ describe('ItineraryMap', () => {
     const dia2 = providerProps!.pins.filter(p => p.diaNumero === 2);
     expect(dia1).toHaveLength(2);
     expect(dia2).toHaveLength(1);
-    expect(dia1[0].position).toEqual([-27.5949, -48.5482]);
+    expect(dia1[0].position).toEqual({ lat: -27.5949, lng: -48.5482 });
     expect(dia1.every(p => p.color === getDayColor(1))).toBe(true);
     expect(dia2[0].nome).toBe('Boat Tour');
 
