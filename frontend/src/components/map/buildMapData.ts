@@ -1,6 +1,6 @@
 import type { ItineraryDay } from '@/store/useStore';
 import type { Atividade } from '@/types/index';
-import type { MapPin, MapRoute } from '@/components/map/MapProvider';
+import type { LatLng, MapPin, MapRoute } from '@/components/map/MapProvider';
 
 // Day color palette — consistent across the app
 const DAY_COLORS = [
@@ -35,12 +35,12 @@ export function buildMapData(days: ItineraryDay[], atividades: Atividade[]): Map
 
   days.forEach((day) => {
     const color = getDayColor(day.dayNumber);
-    const dayPositions: [number, number][] = [];
+    const dayPositions: LatLng[] = [];
 
     day.activityIds.forEach((aid, actIdx) => {
       const act = atividadesPorId.get(aid);
       if (!act || act.latitude == null || act.longitude == null) return;
-      const position: [number, number] = [act.latitude, act.longitude];
+      const position: LatLng = { lat: act.latitude, lng: act.longitude };
       pins.push({
         position,
         color,

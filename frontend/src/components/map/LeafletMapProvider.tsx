@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TURNOS } from '@/types/index';
-import type { MapProviderProps } from './MapProvider';
+import type { LatLng, MapProviderProps } from './MapProvider';
 
 function turnoLabel(turno: string): string {
   return TURNOS.find(t => t.value === turno)?.label ?? turno;
@@ -24,11 +24,11 @@ function createPinIcon(color: string, label: string) {
   });
 }
 
-function FitBounds({ positions }: { positions: [number, number][] }) {
+function FitBounds({ positions }: { positions: LatLng[] }) {
   const map = useMap();
   useEffect(() => {
     if (positions.length > 0) {
-      const bounds = L.latLngBounds(positions.map(p => L.latLng(p[0], p[1])));
+      const bounds = L.latLngBounds(positions.map(p => L.latLng(p.lat, p.lng)));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
   }, [map, positions]);
@@ -37,12 +37,12 @@ function FitBounds({ positions }: { positions: [number, number][] }) {
 
 export default function LeafletMapProvider({ pins, routes }: MapProviderProps) {
   const allPositions = pins.map(p => p.position);
-  const center: [number, number] = allPositions.length > 0
-    ? [
-        allPositions.reduce((s, p) => s + p[0], 0) / allPositions.length,
-        allPositions.reduce((s, p) => s + p[1], 0) / allPositions.length,
-      ]
-    : [0, 0];
+  const center: LatLng = allPositions.length > 0
+    ? {
+        lat: allPositions.reduce((s, p) => s + p.lat, 0) / allPositions.length,
+        lng: allPositions.reduce((s, p) => s + p.lng, 0) / allPositions.length,
+      }
+    : { lat: 0, lng: 0 };
 
   return (
     <MapContainer
