@@ -333,7 +333,7 @@ export default function ViewItinerary() {
 
             <TabsContent value="map">
               <Suspense fallback={<Skeleton className="h-[500px] w-full rounded-lg" />}>
-                <ItineraryMap days={itinerary?.days ?? []} atividades={atividades} provider={LeafletMapProvider} />
+                <ItineraryMap days={dias} atividades={atividades} provider={LeafletMapProvider} />
               </Suspense>
             </TabsContent>
           </Tabs>
