@@ -31,6 +31,8 @@ public class Destino {
 
     private String categoria;
 
+    private String codigoSeed;
+
     @ElementCollection
     @CollectionTable(name = "destino_tags", joinColumns = @JoinColumn(name = "destino_id"))
     @Column(name = "tag")
