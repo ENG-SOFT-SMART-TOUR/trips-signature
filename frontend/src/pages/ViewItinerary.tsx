@@ -15,9 +15,12 @@ import { roteiroApi, atividadeApi, roteiroAtividadeApi } from '@/services/api';
 import { useItineraryDays } from '@/hooks/useItineraryDays';
 import { formatarDia } from '@/lib/dateUtils';
 import type { Roteiro, Atividade } from '@/types/index';
+import type { MapProvider } from '@/components/map/MapProvider';
 
 // Lazy-load: o chunk do mapa (leaflet) só é baixado ao abrir a aba Mapa (RNF de carga < 3s)
 const ItineraryMap = lazy(() => import('@/components/ItineraryMap'));
+// A tela (camada de composição) escolhe o provider concreto; o ItineraryMap só conhece o contrato.
+const LeafletMapProvider = lazy(() => import('@/components/map/LeafletMapProvider')) as MapProvider;
 
 export default function ViewItinerary() {
   const { id } = useParams<{ id: string }>();
@@ -330,7 +333,7 @@ export default function ViewItinerary() {
 
             <TabsContent value="map">
               <Suspense fallback={<Skeleton className="h-[500px] w-full rounded-lg" />}>
-                <ItineraryMap days={itinerary?.days ?? []} atividades={atividades} />
+                <ItineraryMap days={itinerary?.days ?? []} atividades={atividades} provider={LeafletMapProvider} />
               </Suspense>
             </TabsContent>
           </Tabs>

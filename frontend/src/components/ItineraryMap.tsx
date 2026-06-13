@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import type { ItineraryDay } from '@/store/useStore';
 import type { Atividade } from '@/types/index';
 import type { MapProvider } from '@/components/map/MapProvider';
-import LeafletMapProvider from '@/components/map/LeafletMapProvider';
 import { buildMapData, getDayColor } from '@/components/map/buildMapData';
 
 export { getDayColor };
@@ -10,10 +9,10 @@ export { getDayColor };
 interface ItineraryMapProps {
   days: ItineraryDay[];
   atividades: Atividade[];
-  provider?: MapProvider;
+  provider: MapProvider;
 }
 
-export default function ItineraryMap({ days, atividades, provider: Provider = LeafletMapProvider }: ItineraryMapProps) {
+export default function ItineraryMap({ days, atividades, provider: Provider }: ItineraryMapProps) {
   // null = "Todos" — visão completa do roteiro
   const [diaSelecionado, setDiaSelecionado] = useState<number | null>(null);
 
