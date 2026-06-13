@@ -7,8 +7,10 @@ import com.signaturetrips.api.domain.repository.DestinoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,11 +63,12 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    // Bancos populados antes do RF07 já tinham atividades, mas sem lat/lng —
+    // Bancos populados antes do RF07 ja tinham atividades, mas sem lat/lng,
     // e o seed completo só roda com a tabela vazia. Preenche o que falta
-    // reaplicando a mesma dispersão determinística do seed.
+    // reaplicando a mesma dispersao deterministica do seed.
     private void preencherCoordenadasFaltantes() {
         for (Destino destino : destinoRepository.findAll()) {
+            preencherCodigoSeedLegado(destino);
             List<Atividade> atividades = atividadeRepository.findByDestinoId(destino.getId());
             boolean faltaCoordenada = atividades.stream()
                 .anyMatch(a -> a.getLatitude() == null || a.getLongitude() == null);
@@ -76,6 +79,22 @@ public class DataSeeder implements CommandLineRunner {
             aplicarCoordenadas(destino, atividades);
             atividadeRepository.saveAll(atividades);
         }
+    }
+
+    private void preencherCodigoSeedLegado(Destino destino) {
+        if (destino.getCodigoSeed() != null && !destino.getCodigoSeed().isBlank()) {
+            return;
+        }
+        destino.setCodigoSeed(normalizarCodigoSeed(destino.getNome()));
+        destinoRepository.save(destino);
+    }
+
+    private String normalizarCodigoSeed(String nome) {
+        return Normalizer.normalize(nome, Normalizer.Form.NFD)
+            .replaceAll("\\p{M}", "")
+            .toLowerCase(Locale.ROOT)
+            .replaceAll("[^a-z0-9]+", "-")
+            .replaceAll("(^-|-$)", "");
     }
 
     private void seedDestinos() {
